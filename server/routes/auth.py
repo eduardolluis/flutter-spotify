@@ -1,6 +1,9 @@
 import uuid
+
+import jwt
 import bcrypt
-from fastapi import Depends, HTTPException, APIRouter
+from middleware.auth_middleware import auth_middleware      
+from fastapi import Depends, HTTPException, APIRouter, Header
 from sqlalchemy.orm import Session
 from models.user import User
 from pydantic_schemas.user_create import UserCreate
@@ -41,4 +44,16 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     if not is_match:
         raise HTTPException(status_code=400, detail="Incorrect password!")
     
-    return user_db
+    token = jwt.encode({'id': user_db.id}, 'password_key')
+
+    return {'token': token, 'user': user_db}
+
+@router.get('/')
+def current_user_data(db: Session = Depends(get_db),
+                      user_dict = Depends(auth_middleware)):
+   user = db.query(User).filter(User.id == user_dict['uid']).first()
+
+   if not user:
+       raise HTTPException(404, 'User not found!')
+   
+   return user
