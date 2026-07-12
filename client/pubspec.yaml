@@ -42,6 +42,9 @@ dependencies:
   build_runner: ^2.15.0
   riverpod_lint: ^3.1.4
   shared_preferences: ^2.5.5
+  dotted_border: ^3.1.0
+  flex_color_picker: ^3.8.0
+  file_picker: ^11.0.2
 
 dev_dependencies:
   flutter_test:
