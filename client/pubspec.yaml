@@ -45,6 +45,7 @@ dependencies:
   dotted_border: ^3.1.0
   flex_color_picker: ^3.8.0
   file_picker: ^11.0.2
+  audio_waveforms: ^2.0.2
 
 dev_dependencies:
   flutter_test:

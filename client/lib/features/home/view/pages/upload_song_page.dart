@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/custom_field.dart';
+import 'package:client/features/home/view/widgets/audio_wave.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
@@ -23,16 +24,16 @@ class _UploadSongPageState extends State<UploadSongPage> {
 
   void selectAudio() async {
     final pickedAudio = await pickAudio();
-    if (pickedAudio != null) {
+    if (pickedAudio != null && mounted) {
       setState(() {
-        selectedImage = pickedAudio;
+        selectedAudio = pickedAudio;
       });
     }
   }
 
   void selectImage() async {
     final pickedImage = await pickImage();
-    if (pickedImage != null) {
+    if (pickedImage != null && mounted) {
       setState(() {
         selectedImage = pickedImage;
       });
@@ -93,12 +94,14 @@ class _UploadSongPageState extends State<UploadSongPage> {
                       ),
               ),
               const SizedBox(height: 40),
-              CustomField(
-                hintText: "Pick Song",
-                controller: null,
-                readOnly: true,
-                ontTap: selectAudio,
-              ),
+              selectedAudio != null
+                  ? AudioWave(path: selectedAudio!.path)
+                  : CustomField(
+                      hintText: "Pick Song",
+                      controller: null,
+                      readOnly: true,
+                      ontTap: selectAudio,
+                    ),
               const SizedBox(height: 20),
               CustomField(hintText: "Artist", controller: artistController, readOnly: true),
               const SizedBox(height: 20),
