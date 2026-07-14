@@ -2,6 +2,7 @@ import uuid
 
 import jwt
 import bcrypt
+from config import JWT_SECRET
 from middleware.auth_middleware import auth_middleware      
 from fastapi import Depends, HTTPException, APIRouter, Header
 from sqlalchemy.orm import Session
@@ -44,7 +45,7 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     if not is_match:
         raise HTTPException(status_code=400, detail="Incorrect password!")
     
-    token = jwt.encode({'id': user_db.id}, 'password_key')
+    token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
     return {'token': token, 'user': user_db}
 

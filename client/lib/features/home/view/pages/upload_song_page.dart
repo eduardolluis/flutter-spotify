@@ -1,26 +1,76 @@
 import 'dart:io';
 
 import 'package:client/core/theme/app_pallete.dart';
+import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/custom_field.dart';
+import 'package:client/features/home/repositories/home_repository.dart';
 import 'package:client/features/home/view/widgets/audio_wave.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UploadSongPage extends StatefulWidget {
+class UploadSongPage extends ConsumerStatefulWidget {
   const UploadSongPage({super.key});
 
   @override
-  State<UploadSongPage> createState() => _UploadSongPageState();
+  ConsumerState<UploadSongPage> createState() => _UploadSongPageState();
 }
 
-class _UploadSongPageState extends State<UploadSongPage> {
+class _UploadSongPageState extends ConsumerState<UploadSongPage> {
   final songNameController = TextEditingController();
   final artistController = TextEditingController();
   Color selectedColor = Pallete.cardColor;
   File? selectedImage;
   File? selectedAudio;
+  bool isUploading = false;
+
+  Future<void> uploadSong() async {
+    final user = ref.read(currentUserProvider);
+    if (selectedAudio == null || selectedImage == null) {
+      showSnackBar(context, 'Select a song and thumbnail');
+      return;
+    }
+    if (artistController.text.trim().isEmpty ||
+        songNameController.text.trim().isEmpty) {
+      showSnackBar(context, 'Enter the artist and song name');
+      return;
+    }
+    if (user == null || user.token.trim().isEmpty) {
+      showSnackBar(context, 'Log in before uploading a song');
+      return;
+    }
+
+    setState(() => isUploading = true);
+    try {
+      await HomeRepository().uploadSong(
+        song: selectedAudio!,
+        thumbnail: selectedImage!,
+        artist: artistController.text.trim(),
+        songName: songNameController.text.trim(),
+        hexCode:
+            '#${selectedColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        token: user.token,
+      );
+      if (!mounted) return;
+      showSnackBar(context, 'Song uploaded successfully');
+      songNameController.clear();
+      artistController.clear();
+      setState(() {
+        selectedAudio = null;
+        selectedImage = null;
+      });
+    } catch (e) {
+      if (mounted) {
+        showSnackBar(context, e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isUploading = false);
+      }
+    }
+  }
 
   void selectAudio() async {
     final pickedAudio = await pickAudio();
@@ -52,7 +102,20 @@ class _UploadSongPageState extends State<UploadSongPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Upload Song"),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.check))],
+        actions: [
+          isUploading
+              ? const Padding(
+                  padding: EdgeInsets.all(14),
+                  child: SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : IconButton(
+                  onPressed: uploadSong,
+                  icon: const Icon(Icons.check),
+                ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -87,7 +150,10 @@ class _UploadSongPageState extends State<UploadSongPage> {
                             children: [
                               Icon(Icons.folder_open, size: 40),
                               SizedBox(height: 15),
-                              Text("Select thumbnail", style: TextStyle(fontSize: 15)),
+                              Text(
+                                "Select thumbnail",
+                                style: TextStyle(fontSize: 15),
+                              ),
                             ],
                           ),
                         ),
@@ -103,9 +169,12 @@ class _UploadSongPageState extends State<UploadSongPage> {
                       ontTap: selectAudio,
                     ),
               const SizedBox(height: 20),
-              CustomField(hintText: "Artist", controller: artistController, readOnly: true),
+              CustomField(hintText: "Artist", controller: artistController),
               const SizedBox(height: 20),
-              CustomField(hintText: "Song Name", controller: songNameController),
+              CustomField(
+                hintText: "Song Name",
+                controller: songNameController,
+              ),
               const SizedBox(height: 20),
               ColorPicker(
                 pickersEnabled: {ColorPickerType.wheel: true},

@@ -1,4 +1,5 @@
 import jwt
+from config import JWT_SECRET
 from fastapi import HTTPException, Header
 
 
@@ -9,7 +10,7 @@ def auth_middleware(x_auth_token = Header()):
             raise HTTPException(status_code=401, detail='No auth token, access denied :(')
 
         # decode the token
-        verified_token = jwt.decode(x_auth_token, 'password_key', algorithms=['HS256'])
+        verified_token = jwt.decode(x_auth_token, JWT_SECRET, algorithms=['HS256'])
         if not verified_token:
             raise HTTPException(status_code=401, detail='Token verification failed, authorization denied :(')
 
