@@ -3,6 +3,13 @@ import 'dart:io';
 
 import 'package:client/core/constants/server_constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'home_repository.g.dart';
+
+@riverpod
+HomeRepository homeRepository(Ref ref) {
+  return HomeRepository();
+}
 
 class HomeRepository {
   Future<Map<String, dynamic>> uploadSong({
@@ -14,16 +21,9 @@ class HomeRepository {
     required String token,
   }) async {
     final request =
-        http.MultipartRequest(
-            'POST',
-            Uri.parse('${ServerConstants.serverURL}/song/upload'),
-          )
+        http.MultipartRequest('POST', Uri.parse('${ServerConstants.serverURL}/song/upload'))
           ..headers['x-auth-token'] = token
-          ..fields.addAll({
-            'artist': artist,
-            'song_name': songName,
-            'hex_code': hexCode,
-          })
+          ..fields.addAll({'artist': artist, 'song_name': songName, 'hex_code': hexCode})
           ..files.addAll([
             await http.MultipartFile.fromPath('song', song.path),
             await http.MultipartFile.fromPath('thumbnail', thumbnail.path),
