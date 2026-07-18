@@ -74,3 +74,8 @@ def upload_song(song: UploadFile = File(...),
         'hex_code': song_db.hex_code,
         'owner_id': song_db.owner_id,
     }
+
+@router.get('/list')
+def list_songs(db: Session = Depends(get_db), auth_details = Depends(auth_middleware)):
+    songs = db.query(Song).all()
+    return songs
