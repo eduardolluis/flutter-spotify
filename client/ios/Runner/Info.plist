@@ -72,6 +72,11 @@
 	<string>This app requires access to your photo library to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to your microphone to record audio.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>	
+	</dict>
 </dict>
 </plist>
 	
