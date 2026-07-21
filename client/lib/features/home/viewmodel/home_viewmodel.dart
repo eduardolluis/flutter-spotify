@@ -4,9 +4,11 @@ import 'dart:ui';
 
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/utils.dart';
+import 'package:client/features/home/models/fav_song_model.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:client/features/home/repositories/home_local_repository.dart';
 import 'package:client/features/home/repositories/home_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -14,8 +16,21 @@ part 'home_viewmodel.g.dart';
 
 @riverpod
 Future<List<SongModel>> getAllSongs(Ref ref) async {
-  final token = ref.watch(currentUserProvider)!.token;
+  final token = ref.watch(currentUserProvider.select((user) => user!.token));
+
   final res = await ref.watch(homeRepositoryProvider).getAllSongs(token: token);
+
+  return switch (res) {
+    Left(value: final l) => throw l.message,
+    Right(value: final r) => r,
+  };
+}
+
+@riverpod
+Future<List<SongModel>> getFavSongs(Ref ref) async {
+  final token = ref.watch(currentUserProvider.select((user) => user!.token));
+
+  final res = await ref.watch(homeRepositoryProvider).getFavSongs(token: token);
 
   return switch (res) {
     Left(value: final l) => throw l.message,
@@ -29,10 +44,9 @@ class HomeViewModel extends _$HomeViewModel {
   late final HomeLocalRepository _homeLocalRepository;
 
   @override
-  FutureOr<Map<String, dynamic>?> build() {
+  FutureOr<dynamic> build() {
     _homeRepository = ref.watch(homeRepositoryProvider);
     _homeLocalRepository = ref.watch(homeLocalRepositoryProvider);
-    return null;
   }
 
   Future<void> uploadSong({
@@ -44,7 +58,7 @@ class HomeViewModel extends _$HomeViewModel {
   }) async {
     state = const AsyncValue.loading();
 
-    state = await AsyncValue.guard<Map<String, dynamic>>(
+    state = await AsyncValue.guard(
       () => _homeRepository.uploadSong(
         song: selectedAudio,
         thumbnail: selectedThumbnail,
@@ -58,5 +72,45 @@ class HomeViewModel extends _$HomeViewModel {
 
   List<SongModel> getRecentlyPlayedSongs() {
     return _homeLocalRepository.loadSongs();
+  }
+
+  Future<void> favSong({required String songId}) async {
+    final user = ref.read(currentUserProvider)!;
+
+    final res = await _homeRepository.favSong(token: user.token, songId: songId);
+
+    switch (res) {
+      case Left(value: final l):
+        state = AsyncValue.error(l.message, StackTrace.current);
+
+      case Right(value: final r):
+        _favSongSuccess(r, songId);
+    }
+  }
+
+  void _favSongSuccess(bool isFavorited, String songId) {
+    final user = ref.read(currentUserProvider)!;
+
+    final userNotifier = ref.read(currentUserProvider.notifier);
+
+    if (isFavorited) {
+      userNotifier.addUser(
+        user.copyWith(
+          favorites: [
+            ...user.favorites,
+
+            FavSongModel(id: '', song_id: songId, user_id: ''),
+          ],
+        ),
+      );
+    } else {
+      userNotifier.addUser(
+        user.copyWith(favorites: user.favorites.where((e) => e.song_id != songId).toList()),
+      );
+    }
+
+    ref.invalidate(getFavSongsProvider);
+
+    state = AsyncValue.data(isFavorited);
   }
 }

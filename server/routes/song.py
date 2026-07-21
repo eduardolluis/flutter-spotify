@@ -2,6 +2,8 @@ import uuid
 
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException
 from middleware.auth_middleware import auth_middleware
+from server.models.favorite import Favorite
+from server.pydantic_schemas.favorite_song import FavoriteSong
 from sqlalchemy.orm import Session
 from database import get_db
 from models.song import Song
@@ -12,6 +14,7 @@ from config import (
 )
 import cloudinary
 import cloudinary.uploader
+from sqlalchemy.orm import joinedload
 
 router = APIRouter()
 cloudinary.config( 
@@ -76,6 +79,40 @@ def upload_song(song: UploadFile = File(...),
     }
 
 @router.get('/list')
-def list_songs(db: Session = Depends(get_db), auth_details = Depends(auth_middleware)):
+def list_songs(db: Session = Depends(get_db), 
+               auth_details = Depends(auth_middleware)):
     songs = db.query(Song).all()
     return songs
+
+@router.post('/favorite')
+def favorite_song( song: FavoriteSong,
+                  db: Session = Depends(get_db),  
+                  auth_details = Depends(auth_middleware)):
+    #song is already favorited by the user
+    user_id = auth_details['uid']
+
+    fav_song = db.query(Favorite).filter(Favorite.song_id == song.song_id, Favorite.user_id == user_id).first()
+
+    #if song is already favorited, unfavorite the song
+    if fav_song:
+        db.delete(fav_song)
+        db.commit()
+        return {"message": "Song unfavorited successfully."}
+    #if song isn't favorited, favorite the song
+    else: 
+        new_fav = Favorite(id= str(uuid.uuid4()), song_id=fav_song.song_id, user_id=user_id)
+        db.add(new_fav)
+        db.commit()
+        return {"message": "Song favorited successfully."}
+
+@router.get('/list/favorites')
+def list_fav_songs(db: Session = Depends(get_db), 
+               auth_details = Depends(auth_middleware)):
+    
+    user_id = auth_details['uid']
+    fav_songs = db.query(Favorite).filter(Favorite.user_id == user_id).options(
+        joinedload(Favorite.song),
+        joinedload(Favorite.user)
+    ).first()
+    
+    return fav_songs

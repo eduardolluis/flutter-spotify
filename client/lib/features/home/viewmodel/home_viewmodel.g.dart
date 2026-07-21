@@ -46,13 +46,52 @@ final class GetAllSongsProvider
   }
 }
 
-String _$getAllSongsHash() => r'36bd4bb2847e69abae543b24d4e86a9baf96e4d6';
+String _$getAllSongsHash() => r'd6bdb875ad128521e8e6447de8749f93355a0ce6';
+
+@ProviderFor(getFavSongs)
+final getFavSongsProvider = GetFavSongsProvider._();
+
+final class GetFavSongsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SongModel>>,
+          List<SongModel>,
+          FutureOr<List<SongModel>>
+        >
+    with $FutureModifier<List<SongModel>>, $FutureProvider<List<SongModel>> {
+  GetFavSongsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getFavSongsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getFavSongsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SongModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SongModel>> create(Ref ref) {
+    return getFavSongs(ref);
+  }
+}
+
+String _$getFavSongsHash() => r'7a2fc0e9d8b5f6852cb9f1412053c55556888a2b';
 
 @ProviderFor(HomeViewModel)
 final homeViewModelProvider = HomeViewModelProvider._();
 
 final class HomeViewModelProvider
-    extends $AsyncNotifierProvider<HomeViewModel, Map<String, dynamic>?> {
+    extends $AsyncNotifierProvider<HomeViewModel, dynamic> {
   HomeViewModelProvider._()
     : super(
         from: null,
@@ -72,24 +111,19 @@ final class HomeViewModelProvider
   HomeViewModel create() => HomeViewModel();
 }
 
-String _$homeViewModelHash() => r'8eb83bc88aa9d90135dfaffdb186abefcf9aec67';
+String _$homeViewModelHash() => r'21fdf15c122a357b999a5e900dea597629d0902d';
 
-abstract class _$HomeViewModel extends $AsyncNotifier<Map<String, dynamic>?> {
-  FutureOr<Map<String, dynamic>?> build();
+abstract class _$HomeViewModel extends $AsyncNotifier<dynamic> {
+  FutureOr<dynamic> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref =
-        this.ref
-            as $Ref<AsyncValue<Map<String, dynamic>?>, Map<String, dynamic>?>;
+    final ref = this.ref as $Ref<AsyncValue<dynamic>, dynamic>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<Map<String, dynamic>?>,
-                Map<String, dynamic>?
-              >,
-              AsyncValue<Map<String, dynamic>?>,
+              AnyNotifier<AsyncValue<dynamic>, dynamic>,
+              AsyncValue<dynamic>,
               Object?,
               Object?
             >;
