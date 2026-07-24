@@ -4,18 +4,22 @@ import 'package:client/features/auth/view/pages/signup_page.dart';
 import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-   await JustAudioBackground.init(
+  await dotenv.load(fileName: ".env");
+  await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final dir = await getApplicationDocumentsDirectory();
   Hive.init(dir.path);
   await Hive.openBox('songs');

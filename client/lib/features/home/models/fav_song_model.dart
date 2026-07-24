@@ -5,6 +5,7 @@ class FavSongModel {
   final String id;
   final String song_id;
   final String user_id;
+
   FavSongModel({required this.id, required this.song_id, required this.user_id});
 
   FavSongModel copyWith({String? id, String? song_id, String? user_id}) {
@@ -21,16 +22,16 @@ class FavSongModel {
 
   factory FavSongModel.fromMap(Map<String, dynamic> map) {
     return FavSongModel(
-      id: map['id'] as String,
-      song_id: map['song_id'] as String,
-      user_id: map['user_id'] as String,
+      id: map['id']?.toString() ?? '',
+      song_id: map['song_id']?.toString() ?? '',
+      user_id: map['user_id']?.toString() ?? '',
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory FavSongModel.fromJson(String source) =>
-      FavSongModel.fromMap(json.decode(source) as Map<String, dynamic>);
+      FavSongModel.fromMap(Map<String, dynamic>.from(json.decode(source) as Map));
 
   @override
   String toString() => 'FavSongModel(id: $id, song_id: $song_id, user_id: $user_id)';

@@ -103,7 +103,7 @@ class MusicPlayer extends ConsumerWidget {
                               color: Pallete.whiteColor,
                             ),
                           ),
-                        ],
+  ],
                       ),
                       const SizedBox(height: 15),
                       StreamBuilder(

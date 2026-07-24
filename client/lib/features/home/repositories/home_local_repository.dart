@@ -7,7 +7,7 @@ part 'home_local_repository.g.dart';
 @riverpod
 HomeLocalRepository homeLocalRepository(Ref ref) {
   return HomeLocalRepository();
-}
+} 
 
 class HomeLocalRepository {
   final Box box = Hive.box('songs');

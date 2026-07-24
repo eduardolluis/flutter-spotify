@@ -51,11 +51,14 @@ class UserModel {
       email: map['email'] ?? "",
       id: map['id'] ?? "",
       token: map['token'] ?? "",
-      favorites: List<FavSongModel>.from(
-        (map['favorites'] ?? []).map<FavSongModel>(
-          (x) => FavSongModel.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      // 🎯 CORREGIDO: Manejo ultra-seguro de nulos y casteo de mapas
+      favorites: map['favorites'] == null
+          ? []
+          : List<FavSongModel>.from(
+              (map['favorites'] as List<dynamic>).map<FavSongModel>(
+                (x) => FavSongModel.fromMap(Map<String, dynamic>.from(x as Map)),
+              ),
+            ),
     );
   }
 

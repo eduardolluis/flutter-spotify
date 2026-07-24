@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_viewmodel.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AuthViewModel extends _$AuthViewModel {
   late AuthRemoteRepository _authRemoteRepository;
   late AuthLocalRepository _authLocalRepository;
@@ -35,6 +35,8 @@ class AuthViewModel extends _$AuthViewModel {
 
     final res = await _authRemoteRepository.signUp(name: name, email: email, password: password);
 
+    if (!ref.mounted) return;
+
     switch (res) {
       case Left(value: final failure):
         state = AsyncValue.error(failure.message, StackTrace.current);
@@ -48,6 +50,24 @@ class AuthViewModel extends _$AuthViewModel {
     state = const AsyncValue.loading();
 
     final res = await _authRemoteRepository.logIn(email: email, password: password);
+
+    if (!ref.mounted) return;
+
+    switch (res) {
+      case Left(value: final failure):
+        state = AsyncValue.error(failure.message, StackTrace.current);
+
+      case Right(value: final user):
+        _loginSuccess(user);
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    state = const AsyncValue.loading();
+
+    final res = await _authRemoteRepository.loginWithGoogle();
+
+    if (!ref.mounted) return;
 
     switch (res) {
       case Left(value: final failure):
@@ -65,10 +85,13 @@ class AuthViewModel extends _$AuthViewModel {
   }
 
   Future<UserModel?> getData() async {
-    state = AsyncValue.loading();
+    state = const AsyncValue.loading();
     final token = _authLocalRepository.getToken();
+
     if (token != null) {
       final res = await _authRemoteRepository.getCurrentUserData(token);
+
+      if (!ref.mounted) return null;
 
       switch (res) {
         case Left(value: final failure):
@@ -77,11 +100,16 @@ class AuthViewModel extends _$AuthViewModel {
         case Right(value: final user):
           return _getDataSuccess(user).value;
       }
+    } else {
+      if (ref.mounted) {
+        state = const AsyncValue.data(null);
+      }
     }
     return null;
   }
 
   AsyncValue<UserModel?> _getDataSuccess(UserModel user) {
+    _authLocalRepository.setToken(user.token);
     _currentUserNotifier.addUser(user);
     return state = AsyncValue.data(user);
   }

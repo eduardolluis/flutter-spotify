@@ -1,12 +1,14 @@
 import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/core/widgets/loader.dart';
 import 'package:client/core/utils.dart';
-import 'package:client/features/auth/view/widgets/auth_gradient_button.dart';
 import 'package:client/core/widgets/custom_field.dart';
+import 'package:client/core/widgets/loader.dart';
+import 'package:client/features/auth/view/pages/signup_page.dart';
+import 'package:client/features/auth/view/widgets/auth_gradient_button.dart';
 import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:client/features/home/view/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -25,25 +27,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-    formKey.currentState!.validate();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authViewModelProvider.select((val) => val.isLoading)) == true;
+    final isLoading = ref.watch(authViewModelProvider.select((val) => val?.isLoading)) == true;
 
     ref.listen(authViewModelProvider, (_, next) {
-      next.when(
+      next?.when(
         data: (data) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-            (_) => false,
-          );  
+          if (data != null) {
+            showSnackBar(context, "¡Bienvenido de nuevo!");
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+              (_) => false,
+            );
+          }
         },
-        error: ((error, stackTrace) {
+        error: (error, stackTrace) {
           showSnackBar(context, error.toString());
-        }),
+        },
         loading: () {},
       );
     });
@@ -52,70 +57,101 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       appBar: AppBar(),
       body: isLoading
           ? const Loader()
-          : Padding(
-              padding: const EdgeInsets.all(15),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Sign In!",
-                      style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 30),
-
-                    CustomField(hintText: "Email", controller: _emailController),
-                    const SizedBox(height: 15),
-
-                    CustomField(
-                      hintText: "Password",
-                      controller: _passwordController,
-                      isObscureText: true,
-                    ),
-                    SizedBox(height: 20),
-
-                    AuthGradientButton(
-                      label: "Sign In",
-                      onTap: () async {
-                        if (formKey.currentState!.validate()) {
-                          ref
-                              .read(authViewModelProvider.notifier)
-                              .loginUser(
-                                email: _emailController.text,
-                                password: _passwordController.text,
-                              );
-                        } else {
-                          showSnackBar(context, "Missing fields!");
-                        }
-                      },
-                    ),
-                    SizedBox(height: 20),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()),
-                        );
-                      },
-                      child: RichText(
-                        text: TextSpan(
-                          text: "Don't have an account? ",
-                          style: Theme.of(context).textTheme.titleMedium,
-                          children: [
-                            TextSpan(
-                              text: "Sign Up",
-                              style: TextStyle(
-                                color: Pallete.gradient2,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+          : Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Sign In!",
+                          style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                         ),
-                      ),
+                        const SizedBox(height: 30),
+
+                        CustomField(hintText: "Email", controller: _emailController),
+                        const SizedBox(height: 15),
+
+                        CustomField(
+                          hintText: "Password",
+                          controller: _passwordController,
+                          isObscureText: true,
+                        ),
+                        const SizedBox(height: 20),
+
+                        AuthGradientButton(
+                          label: "Sign In",
+                          onTap: () async {
+                            if (formKey.currentState!.validate()) {
+                              await ref
+                                  .read(authViewModelProvider.notifier)
+                                  .loginUser(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                  );
+                            } else {
+                              showSnackBar(context, "Missing fields!");
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // 🎨 Botón de Google
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            minimumSize: const Size(double.infinity, 55),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: const BorderSide(color: Colors.grey, width: 0.5),
+                            ),
+                            elevation: 1,
+                          ),
+                          onPressed: () {
+                            ref.read(authViewModelProvider.notifier).loginWithGoogle();
+                          },
+                          icon: SvgPicture.asset(
+                            'assets/images/google-logo.svg',
+                            height: 24,
+                            width: 24,
+                          ),
+                          label: const Text(
+                            "Continuar con Google",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SignupPage()),
+                            );
+                          },
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Don't have an account? ",
+                              style: Theme.of(context).textTheme.titleMedium,
+                              children: const [
+                                TextSpan(
+                                  text: "Sign Up",
+                                  style: TextStyle(
+                                    color: Pallete.gradient2,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

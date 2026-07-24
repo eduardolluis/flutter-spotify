@@ -15,13 +15,14 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   int selectedIndex = 0;
   final pages = const [SongsPage(), LibraryPage()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           pages[selectedIndex],
-          Positioned(bottom: 0, child: MusicSlab()),
+          const Positioned(bottom: 0, left: 0, right: 0, child: MusicSlab()),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
