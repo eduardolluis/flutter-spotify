@@ -48,7 +48,11 @@ def upload_song(song: UploadFile = File(...),
         )
 
     except Exception as exc:
-        raise HTTPException(status_code=502, detail='Could not upload files to Cloudinary') from exc
+        # Log the real error server-side so we can see exactly why Cloudinary
+        # rejected the upload (bad credentials, quota, file too large, etc.)
+        # instead of hiding it behind a generic message.
+        print(f"[Cloudinary upload error] {type(exc).__name__}: {exc}")
+        raise HTTPException(status_code=502, detail=f'Could not upload files to Cloudinary: {exc}') from exc
 
     song_db = Song(
         id=song_id,
@@ -97,13 +101,13 @@ def favorite_song( song: FavoriteSong,
     if fav_song:
         db.delete(fav_song)
         db.commit()
-        return {"message": "Song unfavorited successfully."}
+        return {"message": "Song unfavorited successfully.", "is_favorite": False}
     #if song isn't favorited, favorite the song
     else: 
         new_fav = Favorite(id=str(uuid.uuid4()), song_id=song.song_id, user_id=user_id)
         db.add(new_fav)
         db.commit()
-        return {"message": "Song favorited successfully."}
+        return {"message": "Song favorited successfully.", "is_favorite": True}
 
 @router.get('/list/favorites')
 def list_fav_songs(db: Session = Depends(get_db), 
