@@ -2,8 +2,8 @@ import uuid
 
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException
 from middleware.auth_middleware import auth_middleware
-from server.models.favorite import Favorite
-from server.pydantic_schemas.favorite_song import FavoriteSong
+from models.favorite import Favorite
+from pydantic_schemas.favorite_song import FavoriteSong
 from sqlalchemy.orm import Session
 from database import get_db
 from models.song import Song
@@ -100,7 +100,7 @@ def favorite_song( song: FavoriteSong,
         return {"message": "Song unfavorited successfully."}
     #if song isn't favorited, favorite the song
     else: 
-        new_fav = Favorite(id= str(uuid.uuid4()), song_id=fav_song.song_id, user_id=user_id)
+        new_fav = Favorite(id=str(uuid.uuid4()), song_id=song.song_id, user_id=user_id)
         db.add(new_fav)
         db.commit()
         return {"message": "Song favorited successfully."}
@@ -113,6 +113,8 @@ def list_fav_songs(db: Session = Depends(get_db),
     fav_songs = db.query(Favorite).filter(Favorite.user_id == user_id).options(
         joinedload(Favorite.song),
         joinedload(Favorite.user)
-    ).first()
-    
-    return fav_songs
+    ).all()
+
+    # always return a JSON array (never null), so the client can safely 
+    #  cast it to a List even when the user has zero favorites.
+    return [fav.song for fav in fav_songs if fav.song is not None]
