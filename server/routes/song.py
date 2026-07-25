@@ -115,6 +115,6 @@ def list_fav_songs(db: Session = Depends(get_db),
         joinedload(Favorite.user)
     ).all()
 
-    # always return a JSON array (never null), so the client can safely 
-    #  cast it to a List even when the user has zero favorites.
+    # Always return a JSON array (never null), so the client can safely
+    # cast it to a List even when the user has zero favorites.
     return [fav.song for fav in fav_songs if fav.song is not None]

@@ -10,4 +10,4 @@ class User(Base):
     email = Column(String(100), unique=True, index=True)
     password = Column(LargeBinary)
 
-    favorites  = relationship('Favorite', back_populates='user', secondary='favorites'  )
+    favorites = relationship('Favorite', back_populates='user')

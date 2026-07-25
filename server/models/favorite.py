@@ -1,8 +1,8 @@
-from models.base import BaseModel
+from models.base import Base
 from sqlalchemy import Column, TEXT, ForeignKey
 from sqlalchemy.orm import relationship
 
-class Favorite(BaseModel):
+class Favorite(Base):
     __tablename__ = 'favorites'
 
     id = Column(TEXT, primary_key=True)
