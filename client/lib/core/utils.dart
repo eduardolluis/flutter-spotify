@@ -32,7 +32,13 @@ Future<File?> pickImage() async {
 
 Future<File?> pickAudio() async {
   try {
-    final filePickerRes = await FilePicker.pickFiles(type: FileType.audio);
+    // En iOS, FileType.audio abre el selector nativo de Apple Music
+    // (solo canciones compradas/sincronizadas). Usamos FileType.custom
+    // con extensiones concretas para que abra la app Archivos normal.
+    final filePickerRes = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'],
+    );
 
     if (filePickerRes != null) {
       return File(filePickerRes.files.first.xFile.path);
