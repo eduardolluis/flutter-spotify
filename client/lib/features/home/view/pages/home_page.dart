@@ -1,6 +1,7 @@
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/features/home/view/pages/library_page.dart';
 import 'package:client/features/home/view/pages/profile_page.dart';
+import 'package:client/features/home/view/pages/search_page.dart';
 import 'package:client/features/home/view/pages/songs_page.dart';
 import 'package:client/features/home/view/widgets/music_slab.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,7 +17,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int selectedIndex = 0;
-  final pages = const [SongsPage(), LibraryPage(), ProfilePage()];
+  final pages = const [SongsPage(), SearchPage(), LibraryPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
         onTap: (value) {
           setState(() {
@@ -45,16 +47,23 @@ class _HomePageState extends ConsumerState<HomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(
+              CupertinoIcons.search,
+              color: selectedIndex == 1 ? Pallete.whiteColor : Pallete.inactiveBottomBarItemColor,
+            ),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
             icon: Image.asset(
               'assets/images/library.png',
-              color: selectedIndex == 1 ? Pallete.whiteColor : Pallete.inactiveBottomBarItemColor,
+              color: selectedIndex == 2 ? Pallete.whiteColor : Pallete.inactiveBottomBarItemColor,
             ),
             label: 'Library',
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              selectedIndex == 2 ? CupertinoIcons.person_fill : CupertinoIcons.person,
-              color: selectedIndex == 2 ? Pallete.whiteColor : Pallete.inactiveBottomBarItemColor,
+              selectedIndex == 3 ? CupertinoIcons.person_fill : CupertinoIcons.person,
+              color: selectedIndex == 3 ? Pallete.whiteColor : Pallete.inactiveBottomBarItemColor,
             ),
             label: 'Profile',
           ),

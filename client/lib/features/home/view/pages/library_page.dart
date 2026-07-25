@@ -13,6 +13,8 @@ class LibraryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final query = ref.watch(librarySearchQueryProvider);
+
     return ref
         .watch(getFavSongsProvider)
         .when(
@@ -26,49 +28,95 @@ class LibraryPage extends ConsumerWidget {
                 },
               );
             }
-            return ListView.builder(
-              padding: const EdgeInsets.only(bottom: 100),
-              itemCount: data.length + 1,
-              itemBuilder: (context, index) {
-                if (index == data.length) {
-                  return ListTile(
-                    onTap: () {
-                      Navigator.of(
-                        context,
-                      ).push(MaterialPageRoute(builder: (context) => const UploadSongPage()));
-                    },
-                    leading: const CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Pallete.backgroundColor,
-                      child: Icon(CupertinoIcons.plus),
+
+            final filtered = query.isEmpty
+                ? data
+                : data
+                      .where(
+                        (song) =>
+                            song.song_name.toLowerCase().contains(query.toLowerCase()) ||
+                            song.artist.toLowerCase().contains(query.toLowerCase()),
+                      )
+                      .toList();
+
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 50, 16, 8),
+                  child: TextField(
+                    onChanged: (value) =>
+                        ref.read(librarySearchQueryProvider.notifier).state = value,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar en tu biblioteca',
+                      prefixIcon: const Icon(CupertinoIcons.search),
+                      filled: true,
+                      fillColor: Pallete.borderColor,
+                      contentPadding: EdgeInsets.zero,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    title: const Text(
-                      "Upload New Song",
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                if (filtered.isEmpty)
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'No encontramos canciones para tu búsqueda',
+                        style: TextStyle(color: Pallete.subtitleText),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  );
-                }
-                final song = data[index];
-                return ListTile(
-                  onTap: () async {
-                    await ref.read(currentSongProvider.notifier).updateSong(song);
-                    if (context.mounted) MusicPlayer.open(context);
-                  },
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(song.thumbnail_url),
-                    radius: 35,
-                    backgroundColor: Pallete.backgroundColor,
+                  )
+                else
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 100),
+                      itemCount: filtered.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == filtered.length) {
+                          return ListTile(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => const UploadSongPage()),
+                              );
+                            },
+                            leading: const CircleAvatar(
+                              radius: 35,
+                              backgroundColor: Pallete.backgroundColor,
+                              child: Icon(CupertinoIcons.plus),
+                            ),
+                            title: const Text(
+                              "Upload New Song",
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                            ),
+                          );
+                        }
+                        final song = filtered[index];
+                        return ListTile(
+                          onTap: () async {
+                            await ref.read(currentSongProvider.notifier).updateSong(song);
+                            if (context.mounted) MusicPlayer.open(context);
+                          },
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(song.thumbnail_url),
+                            radius: 35,
+                            backgroundColor: Pallete.backgroundColor,
+                          ),
+                          title: Text(
+                            song.song_name,
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                          ),
+                          subtitle: Text(
+                            song.artist,
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  title: Text(
-                    song.song_name,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: Text(
-                    song.artist,
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                  ),
-                );
-              },
+              ],
             );
           },
           error: (error, st) {
