@@ -15,6 +15,7 @@ class MusicSlab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSong = ref.watch(currentSongProvider);
     final songNotifier = ref.read(currentSongProvider.notifier);
+    final isPlaying = ref.watch(isPlayingProvider);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
     if (currentSong == null) {
       return const SizedBox();
@@ -45,7 +46,7 @@ class MusicSlab extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(4),
                           image: DecorationImage(
                             image: NetworkImage(currentSong.thumbnail_url),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -89,9 +90,7 @@ class MusicSlab extends ConsumerWidget {
                     IconButton(
                       onPressed: songNotifier.playPause,
                       icon: Icon(
-                        songNotifier.isPlaying
-                            ? CupertinoIcons.pause_fill
-                            : CupertinoIcons.play_fill,
+                        isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill,
                         color: Pallete.whiteColor,
                       ),
                     ),

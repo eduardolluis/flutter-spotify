@@ -74,7 +74,7 @@ class SongsPage extends ConsumerWidget {
                                 ),
                                 image: DecorationImage(
                                   image: NetworkImage(song.thumbnail_url),
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ),
@@ -140,7 +140,7 @@ class SongsPage extends ConsumerWidget {
                                         decoration: BoxDecoration(
                                           image: DecorationImage(
                                             image: NetworkImage(song.thumbnail_url),
-                                            fit: BoxFit.cover,
+                                            fit: BoxFit.contain,
                                           ),
                                           borderRadius: BorderRadius.circular(7),
                                         ),

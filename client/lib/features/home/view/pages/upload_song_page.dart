@@ -76,7 +76,7 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
     });
 
     final homeState = ref.watch(homeViewModelProvider);
-    final isLoading = homeState?.isLoading ?? false;
+    final isLoading = homeState.isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -145,7 +145,7 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                                     width: double.infinity,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: Image.file(selectedImage!, fit: BoxFit.cover),
+                                      child: Image.file(selectedImage!, fit: BoxFit.contain),
                                     ),
                                   ),
                                   Positioned(

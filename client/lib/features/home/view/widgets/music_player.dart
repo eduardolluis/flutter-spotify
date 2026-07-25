@@ -10,6 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
+  /// Feedback honesto para funciones que todavía no existen (conectar
+  /// dispositivo, playlists), en vez de dejar el ícono sin reacción.
+  static void _comingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$feature: próximamente 👀'), duration: const Duration(seconds: 1)),
+    );
+  }
+
   /// Abre la pantalla completa del reproductor con la misma transición
   /// que usa el mini-reproductor (MusicSlab), para poder reutilizarla
   /// desde cualquier lugar donde el usuario toque una canción.
@@ -35,6 +43,9 @@ class MusicPlayer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSong = ref.watch(currentSongProvider);
     final songNotifier = ref.watch(currentSongProvider.notifier);
+    final isPlaying = ref.watch(isPlayingProvider);
+    final shuffleOn = ref.watch(shuffleProvider);
+    final repeatOn = ref.watch(repeatProvider);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
 
     // Si el audioPlayer todavía no se terminó de preparar (ej. la canción
@@ -66,10 +77,7 @@ class MusicPlayer extends ConsumerWidget {
                 offset: const Offset(-15, 0),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Image.asset(
-                    'assets/images/pull-down-arrow.png',
-                    color: Pallete.whiteColor,
-                  ),
+                  child: Image.asset('assets/icons/pull-down-arrow.png', color: Pallete.whiteColor),
                 ),
               ),
             ),
@@ -85,7 +93,7 @@ class MusicPlayer extends ConsumerWidget {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: NetworkImage(currentSong.thumbnail_url),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -134,7 +142,7 @@ class MusicPlayer extends ConsumerWidget {
                               color: Pallete.whiteColor,
                             ),
                           ),
-                        ],
+  ],
                       ),
                       const SizedBox(height: 15),
                       StreamBuilder(
@@ -200,50 +208,62 @@ class MusicPlayer extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/shuffle.png',
-                              width: 24,
-                              height: 24,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: songNotifier.toggleShuffle,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/shuffle.png',
+                                width: 24,
+                                height: 24,
+                                color: shuffleOn ? Pallete.gradient2 : Pallete.whiteColor,
+                              ),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/previus-song.png',
-                              width: 24,
-                              height: 24,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: songNotifier.skipPrevious,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/previus-song.png',
+                                width: 24,
+                                height: 24,
+                                color: Pallete.whiteColor,
+                              ),
                             ),
                           ),
                           IconButton(
                             onPressed: songNotifier.playPause,
                             icon: Icon(
-                              songNotifier.isPlaying
+                              isPlaying
                                   ? CupertinoIcons.pause_circle_fill
                                   : CupertinoIcons.play_circle_fill,
                             ),
                             iconSize: 64,
                             color: Pallete.whiteColor,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/next-song.png',
-                              width: 24,
-                              height: 24,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: songNotifier.skipNext,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/next-song.png',
+                                width: 24,
+                                height: 24,
+                                color: Pallete.whiteColor,
+                              ),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/repeat.png',
-                              width: 24,
-                              height: 24,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: songNotifier.toggleRepeat,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/repeat.png',
+                                width: 24,
+                                height: 24,
+                                color: repeatOn ? Pallete.gradient2 : Pallete.whiteColor,
+                              ),
                             ),
                           ),
                         ],
@@ -251,23 +271,29 @@ class MusicPlayer extends ConsumerWidget {
                       const SizedBox(height: 25),
                       Row(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/connect-device.png',
-                              width: 22,
-                              height: 22,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: () => _comingSoon(context, 'Conectar dispositivo'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/connect-device.png',
+                                width: 22,
+                                height: 22,
+                                color: Pallete.whiteColor,
+                              ),
                             ),
                           ),
                           const Expanded(child: SizedBox()),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset(
-                              'assets/images/playlist.png',
-                              width: 22,
-                              height: 22,
-                              color: Pallete.whiteColor,
+                          GestureDetector(
+                            onTap: () => _comingSoon(context, 'Playlists'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/icons/playlist.png',
+                                width: 22,
+                                height: 22,
+                                color: Pallete.whiteColor,
+                              ),
                             ),
                           ),
                         ],
