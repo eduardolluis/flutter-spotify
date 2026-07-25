@@ -37,7 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       next.when(
         data: (data) {
           if (data != null) {
-            showSnackBar(context, "¡Bienvenido de nuevo!");
+            showSnackBar(context, "¡Welcome Again!");
 
             Navigator.pushAndRemoveUntil(
               context,
@@ -52,109 +52,122 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         loading: () {},
       );
     });
-
     return Scaffold(
-      appBar: AppBar(),
-      body: isLoading
-          ? const Loader()
-          : Center(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Sign In!",
-                          style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 30),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/welcome-background.jpeg'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: isLoading
+            ? const Loader()
+            : Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Log In!",
+                            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 30),
 
-                        CustomField(hintText: "Email", controller: _emailController),
-                        const SizedBox(height: 15),
+                          CustomField(
+                            hintText: "Email",
+                            controller: _emailController,
+                            prefixIcon: Icons.email_outlined,
+                          ),
+                          const SizedBox(height: 15),
 
-                        CustomField(
-                          hintText: "Password",
-                          controller: _passwordController,
-                          isObscureText: true,
-                        ),
-                        const SizedBox(height: 20),
+                          CustomField(
+                            hintText: "Password",
+                            controller: _passwordController,
+                            isObscureText: true,
+                            prefixIcon: Icons.lock_outline,
+                          ),
+                          const SizedBox(height: 20),
 
-                        AuthGradientButton(
-                          label: "Sign In",
-                          onTap: () async {
-                            if (formKey.currentState!.validate()) {
-                              await ref
-                                  .read(authViewModelProvider.notifier)
-                                  .loginUser(
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  );
-                            } else {
-                              showSnackBar(context, "Missing fields!");
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
+                          AuthGradientButton(
+                            label: "Log In",
+                            onTap: () async {
+                              if (formKey.currentState!.validate()) {
+                                await ref
+                                    .read(authViewModelProvider.notifier)
+                                    .loginUser(
+                                      email: _emailController.text,
+                                      password: _passwordController.text,
+                                    );
+                              } else {
+                                showSnackBar(context, "Missing fields!");
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 15),
 
-                        // 🎨 Botón de Google
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            minimumSize: const Size(double.infinity, 55),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: const BorderSide(color: Colors.grey, width: 0.5),
+                          // 🎨 Botón de Google
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                              minimumSize: const Size(double.infinity, 55),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(color: Colors.grey, width: 0.5),
+                              ),
+                              elevation: 1,
                             ),
-                            elevation: 1,
+                            onPressed: () {
+                              ref.read(authViewModelProvider.notifier).loginWithGoogle();
+                            },
+                            icon: SvgPicture.asset(
+                              'assets/images/google-logo.svg',
+                              height: 24,
+                              width: 24,
+                            ),
+                            label: const Text(
+                              "Continuar con Google",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
                           ),
-                          onPressed: () {
-                            ref.read(authViewModelProvider.notifier).loginWithGoogle();
-                          },
-                          icon: SvgPicture.asset(
-                            'assets/images/google-logo.svg',
-                            height: 24,
-                            width: 24,
-                          ),
-                          label: const Text(
-                            "Continuar con Google",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const SignupPage()),
-                            );
-                          },
-                          child: RichText(
-                            text: TextSpan(
-                              text: "Don't have an account? ",
-                              style: Theme.of(context).textTheme.titleMedium,
-                              children: const [
-                                TextSpan(
-                                  text: "Sign Up",
-                                  style: TextStyle(
-                                    color: Pallete.gradient2,
-                                    fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SignupPage()),
+                              );
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                text: "Don't have an account? ",
+                                style: Theme.of(context).textTheme.titleMedium,
+                                children: const [
+                                  TextSpan(
+                                    text: "Sign Up",
+                                    style: TextStyle(
+                                      color: Pallete.gradient2,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }
