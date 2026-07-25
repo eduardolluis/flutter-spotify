@@ -12,14 +12,19 @@ HomeLocalRepository homeLocalRepository(Ref ref) {
 class HomeLocalRepository {
   final Box box = Hive.box('songs');
 
-  void uploadLocalSong(SongModel song) {
-    box.put(song.id, song.toJson());
+  // Las claves se guardan como "<userId>_<songId>" para que "recientemente
+  // escuchado" quede ligado a cada cuenta y no se mezcle entre usuarios
+  // distintos que usan el mismo dispositivo.
+  void uploadLocalSong(String userId, SongModel song) {
+    box.put('${userId}_${song.id}', song.toJson());
   }
 
-  List<SongModel> loadSongs() {
+  List<SongModel> loadSongs(String userId) {
     List<SongModel> songs = [];
     for (final key in box.keys) {
-      songs.add(SongModel.fromJson(box.get(key)));
+      if (key is String && key.startsWith('${userId}_')) {
+        songs.add(SongModel.fromJson(box.get(key)));
+      }
     }
     return songs;
   }

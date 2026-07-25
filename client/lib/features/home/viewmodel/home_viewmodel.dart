@@ -71,7 +71,9 @@ class HomeViewModel extends _$HomeViewModel {
   }
 
   List<SongModel> getRecentlyPlayedSongs() {
-    return _homeLocalRepository.loadSongs();
+    final userId = ref.read(currentUserProvider)?.id;
+    if (userId == null) return [];
+    return _homeLocalRepository.loadSongs(userId);
   }
 
   Future<void> favSong({required String songId}) async {
