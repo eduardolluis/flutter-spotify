@@ -24,7 +24,12 @@ class _HomePageState extends ConsumerState<HomePage> {
       body: Stack(
         children: [
           pages[selectedIndex],
-          const Positioned(bottom: 0, left: 0, right: 0, child: MusicSlab()),
+          const Positioned(
+            bottom: kBottomNavigationBarHeight,
+            left: 0,
+            right: 0,
+            child: MusicSlab(),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

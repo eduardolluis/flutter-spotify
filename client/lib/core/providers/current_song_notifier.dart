@@ -16,7 +16,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     return null;
   }
 
-  void updateSong(SongModel song) async {
+  Future<void> updateSong(SongModel song) async {
     await audioPlayer?.stop();
     audioPlayer = AudioPlayer();
 

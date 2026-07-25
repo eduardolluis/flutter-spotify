@@ -3,6 +3,7 @@ import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
+import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +53,9 @@ class SongsPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final song = recentlyPlayedSongs[index];
                     return GestureDetector(
-                      onTap: () {
-                        ref.read(currentSongProvider.notifier).updateSong(song);
+                      onTap: () async {
+                        await ref.read(currentSongProvider.notifier).updateSong(song);
+                        if (context.mounted) MusicPlayer.open(context);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -123,8 +125,9 @@ class SongsPage extends ConsumerWidget {
                             itemBuilder: (context, index) {
                               final song = songs[index];
                               return GestureDetector(
-                                onTap: () {
-                                  ref.read(currentSongProvider.notifier).updateSong(song);
+                                onTap: () async {
+                                  await ref.read(currentSongProvider.notifier).updateSong(song);
+                                  if (context.mounted) MusicPlayer.open(context);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 16.0),

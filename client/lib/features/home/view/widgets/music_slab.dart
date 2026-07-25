@@ -20,23 +20,7 @@ class MusicSlab extends ConsumerWidget {
       return const SizedBox();
     }
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) {
-              return const MusicPlayer();
-            },
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              final tween = Tween(
-                begin: Offset(1, 0),
-                end: Offset.zero,
-              ).chain(CurveTween(curve: Curves.easeIn));
-              final offsetAnimation = animation.drive(tween);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
-          ),
-        );
-      },
+      onTap: () => MusicPlayer.open(context),
       child: Stack(
         children: [
           AnimatedContainer(

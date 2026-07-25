@@ -26,16 +26,24 @@ class _AudioWaveState extends State<AudioWave> {
   }
 
   void initAudioPlayer() async {
-    await playerController.preparePlayer(path: widget.path);
+    try {
+      await playerController.preparePlayer(path: widget.path);
+    } catch (e) {
+      debugPrint('AudioWave: could not prepare player for ${widget.path}: $e');
+    }
   }
 
   Future<void> playAndPause() async {
-    if (!playerController.playerState.isPlaying) {
-      await playerController.startPlayer();
-    } else if (!playerController.playerState.isPaused) {
-      await playerController.pausePlayer();
+    try {
+      if (!playerController.playerState.isPlaying) {
+        await playerController.startPlayer();
+      } else if (!playerController.playerState.isPaused) {
+        await playerController.pausePlayer();
+      }
+    } catch (e) {
+      debugPrint('AudioWave: could not play/pause: $e');
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -43,7 +51,7 @@ class _AudioWaveState extends State<AudioWave> {
     return Row(
       children: [
         IconButton(
-          onPressed: () {},
+          onPressed: playAndPause,
           icon: Icon(
             playerController.playerState.isPlaying
                 ? CupertinoIcons.pause_solid

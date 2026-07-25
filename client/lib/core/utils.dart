@@ -4,11 +4,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 String rgbToHex(Color color) {
-  return '${color.red.toRadixString(16).padLeft(2, '0')} ${color.green.toRadixString(16).padLeft(2, '0')} ${color.blue.toRadixString(16).padLeft(2, '0')}';
+  return '${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
 }
 
 Color hexToColor(String hex) {
-  return Color(int.parse(hex, radix: 16) + 0xFF000000);
+  // Defensivo: limpia espacios u otros separadores por si el valor viene
+  // de datos guardados antes de corregir rgbToHex (ej. "af 4f 4f").
+  final cleanHex = hex.replaceAll(RegExp(r'[^0-9a-fA-F]'), '');
+  return Color(int.parse(cleanHex, radix: 16) + 0xFF000000);
 }
 
 void showSnackBar(BuildContext context, String content) {

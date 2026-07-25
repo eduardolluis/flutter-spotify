@@ -42,7 +42,7 @@ class AuthViewModel extends _$AuthViewModel {
         state = AsyncValue.error(failure.message, StackTrace.current);
 
       case Right(value: final user):
-        state = AsyncValue.data(user);
+        _loginSuccess(user);
     }
   }
 

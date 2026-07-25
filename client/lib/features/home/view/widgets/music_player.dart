@@ -10,18 +10,46 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
+  /// Abre la pantalla completa del reproductor con la misma transición
+  /// que usa el mini-reproductor (MusicSlab), para poder reutilizarla
+  /// desde cualquier lugar donde el usuario toque una canción.
+  static void open(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return const MusicPlayer();
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final tween = Tween(
+            begin: Offset(1, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: Curves.easeIn));
+          final offsetAnimation = animation.drive(tween);
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSong = ref.watch(currentSongProvider);
     final songNotifier = ref.watch(currentSongProvider.notifier);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
 
+    // Si el audioPlayer todavía no se terminó de preparar (ej. la canción
+    // se acaba de tocar y updateSong sigue corriendo), mostramos un loader
+    // en vez de tronar con un null check.
+    if (currentSong == null || songNotifier.audioPlayer == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [hexToColor(currentSong!.hex_code), const Color(0xff121212)],
+          colors: [hexToColor(currentSong.hex_code), const Color(0xff121212)],
         ),
       ),
       child: GestureDetector(
@@ -38,7 +66,10 @@ class MusicPlayer extends ConsumerWidget {
                 offset: const Offset(-15, 0),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Image.asset('assets/icons/pull-down-arrow.png', color: Pallete.whiteColor),
+                  child: Image.asset(
+                    'assets/images/pull-down-arrow.png',
+                    color: Pallete.whiteColor,
+                  ),
                 ),
               ),
             ),
@@ -103,7 +134,7 @@ class MusicPlayer extends ConsumerWidget {
                               color: Pallete.whiteColor,
                             ),
                           ),
-  ],
+                        ],
                       ),
                       const SizedBox(height: 15),
                       StreamBuilder(
@@ -172,14 +203,18 @@ class MusicPlayer extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/shuffle.png',
+                              'assets/images/shuffle.png',
+                              width: 24,
+                              height: 24,
                               color: Pallete.whiteColor,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/previus-song.png',
+                              'assets/images/previus-song.png',
+                              width: 24,
+                              height: 24,
                               color: Pallete.whiteColor,
                             ),
                           ),
@@ -190,20 +225,24 @@ class MusicPlayer extends ConsumerWidget {
                                   ? CupertinoIcons.pause_circle_fill
                                   : CupertinoIcons.play_circle_fill,
                             ),
-                            iconSize: 80,
+                            iconSize: 64,
                             color: Pallete.whiteColor,
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/next-song.png',
+                              'assets/images/next-song.png',
+                              width: 24,
+                              height: 24,
                               color: Pallete.whiteColor,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/repeat.png',
+                              'assets/images/repeat.png',
+                              width: 24,
+                              height: 24,
                               color: Pallete.whiteColor,
                             ),
                           ),
@@ -215,7 +254,9 @@ class MusicPlayer extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/connect-device.png',
+                              'assets/images/connect-device.png',
+                              width: 22,
+                              height: 22,
                               color: Pallete.whiteColor,
                             ),
                           ),
@@ -223,7 +264,9 @@ class MusicPlayer extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: Image.asset(
-                              'assets/icons/playlist.png',
+                              'assets/images/playlist.png',
+                              width: 22,
+                              height: 22,
                               color: Pallete.whiteColor,
                             ),
                           ),
