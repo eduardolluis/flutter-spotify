@@ -102,7 +102,7 @@ class HomeRepository {
 
       List<SongModel> songs = [];
       for (final map in resBodyMap) {
-        songs.add(SongModel.fromMap(map['song']));
+        songs.add(SongModel.fromMap(map));
       }
       return Right(songs);
     } catch (e) {
