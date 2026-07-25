@@ -27,6 +27,7 @@ class LibraryPage extends ConsumerWidget {
               );
             }
             return ListView.builder(
+              padding: const EdgeInsets.only(bottom: 100),
               itemCount: data.length + 1,
               itemBuilder: (context, index) {
                 if (index == data.length) {
