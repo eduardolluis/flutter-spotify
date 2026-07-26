@@ -1,15 +1,17 @@
 import 'dart:io';
 
+import 'package:client/core/theme/app_pallete.dart';
+import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 
 String rgbToHex(Color color) {
   return '${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
 }
 
 Color hexToColor(String hex) {
-  // Defensivo: limpia espacios u otros separadores por si el valor viene
-  // de datos guardados antes de corregir rgbToHex (ej. "af 4f 4f").
   final cleanHex = hex.replaceAll(RegExp(r'[^0-9a-fA-F]'), '');
   return Color(int.parse(cleanHex, radix: 16) + 0xFF000000);
 }
@@ -35,9 +37,6 @@ Future<File?> pickImage() async {
 
 Future<File?> pickAudio() async {
   try {
-    // En iOS, FileType.audio abre el selector nativo de Apple Music
-    // (solo canciones compradas/sincronizadas). Usamos FileType.custom
-    // con extensiones concretas para que abra la app Archivos normal.
     final filePickerRes = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'],
@@ -49,5 +48,40 @@ Future<File?> pickAudio() async {
     return null;
   } catch (e) {
     return null;
+  }
+}
+
+Future<void> confirmDeleteSong(BuildContext context, WidgetRef ref, String songId) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Pallete.cardColor,
+        title: const Text('Delete song'),
+        content: const Text('This action cannot be undone. Are you sure you want to delete it?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Pallete.errorColor)),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed != true) return;
+
+  final res = await ref.read(homeViewModelProvider.notifier).deleteSong(songId);
+  if (!context.mounted) return;
+
+  switch (res) {
+    case Left(value: final failure):
+      showSnackBar(context, failure.message);
+    case Right():
+      showSnackBar(context, 'Song deleted successfully');
   }
 }

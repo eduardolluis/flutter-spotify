@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:client/core/failure/failure.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/features/home/models/fav_song_model.dart';
@@ -114,5 +115,17 @@ class HomeViewModel extends _$HomeViewModel {
     ref.invalidate(getFavSongsProvider);
 
     state = AsyncValue.data(isFavorited);
+  }
+
+  Future<Either<AppFailure, String>> deleteSong(String songId) async {
+    final user = ref.read(currentUserProvider)!;
+    final res = await _homeRepository.deleteSong(token: user.token, songId: songId);
+
+    if (res.isRight()) {
+      ref.invalidate(getAllSongsProvider);
+      ref.invalidate(getFavSongsProvider);
+    }
+
+    return res;
   }
 }
