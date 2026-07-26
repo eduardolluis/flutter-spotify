@@ -1,14 +1,33 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
+import 'package:client/core/utils.dart';
 import 'package:client/features/auth/view/pages/signup_page.dart';
 import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:client/features/home/view/pages/my_songs_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
+
+  Future<void> _pickAndUploadAvatar(BuildContext context, WidgetRef ref) async {
+    final image = await pickImage();
+    if (image == null) return;
+    if (!context.mounted) return;
+
+    final res = await ref.read(authViewModelProvider.notifier).updateAvatar(image);
+    if (!context.mounted) return;
+
+    switch (res) {
+      case Left(value: final failure):
+        showSnackBar(context, failure.message);
+      case Right():
+        showSnackBar(context, 'Foto de perfil actualizada');
+    }
+  }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
@@ -16,16 +35,16 @@ class ProfilePage extends ConsumerWidget {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Pallete.cardColor,
-          title: const Text('Log Out'),
-          content: const Text('Are you sure you want to log out?'),
+          title: const Text('Cerrar sesión'),
+          content: const Text('¿Seguro que quieres cerrar tu sesión?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Log Out', style: TextStyle(color: Pallete.errorColor)),
+              child: const Text('Cerrar sesión', style: TextStyle(color: Pallete.errorColor)),
             ),
           ],
         );
@@ -38,15 +57,15 @@ class ProfilePage extends ConsumerWidget {
     await ref.read(authViewModelProvider.notifier).logout();
 
     if (!context.mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const SignupPage()),
-      (route) => false,
-    );
+    Navigator.of(
+      context,
+    ).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SignupPage()), (route) => false);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
+    final isUploadingAvatar = ref.watch(authViewModelProvider).isLoading;
 
     return SafeArea(
       child: Padding(
@@ -54,15 +73,51 @@ class ProfilePage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Profile', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700)),
+            const Text('Perfil', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700)),
             const SizedBox(height: 32),
             Center(
               child: Column(
                 children: [
-                  const CircleAvatar(
-                    radius: 48,
-                    backgroundColor: Pallete.cardColor,
-                    child: Icon(CupertinoIcons.person_fill, size: 48, color: Pallete.subtitleText),
+                  GestureDetector(
+                    onTap: isUploadingAvatar ? null : () => _pickAndUploadAvatar(context, ref),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 48,
+                          backgroundColor: Pallete.cardColor,
+                          backgroundImage: (user?.avatar_url != null && user!.avatar_url!.isNotEmpty)
+                              ? CachedNetworkImageProvider(user.avatar_url!)
+                              : null,
+                          child: (user?.avatar_url == null || user!.avatar_url!.isEmpty)
+                              ? const Icon(
+                                  CupertinoIcons.person_fill,
+                                  size: 48,
+                                  color: Pallete.subtitleText,
+                                )
+                              : null,
+                        ),
+                        if (isUploadingAvatar)
+                          const CircularProgressIndicator(color: Pallete.whiteColor)
+                        else
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Pallete.gradient2,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.camera_fill,
+                                size: 16,
+                                color: Pallete.whiteColor,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -83,7 +138,10 @@ class ProfilePage extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(CupertinoIcons.music_note_list, color: Pallete.whiteColor),
-              title: const Text('My songs', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'Mis canciones',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               trailing: const Icon(CupertinoIcons.chevron_right, size: 18),
               onTap: () {
                 Navigator.of(
@@ -97,7 +155,7 @@ class ProfilePage extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(CupertinoIcons.square_arrow_right, color: Pallete.errorColor),
               title: const Text(
-                'Log Out',
+                'Cerrar sesión',
                 style: TextStyle(color: Pallete.errorColor, fontWeight: FontWeight.w600),
               ),
               onTap: () => _confirmLogout(context, ref),

@@ -9,6 +9,7 @@ class UserModel {
   final String email;
   final String id;
   final String token;
+  final String? avatar_url;
   final List<FavSongModel> favorites;
 
   UserModel({
@@ -16,6 +17,7 @@ class UserModel {
     required this.email,
     required this.id,
     required this.token,
+    this.avatar_url,
     required this.favorites,
   });
 
@@ -24,6 +26,7 @@ class UserModel {
     String? email,
     String? id,
     String? token,
+    String? avatar_url,
     List<FavSongModel>? favorites,
   }) {
     return UserModel(
@@ -31,6 +34,7 @@ class UserModel {
       email: email ?? this.email,
       id: id ?? this.id,
       token: token ?? this.token,
+      avatar_url: avatar_url ?? this.avatar_url,
       favorites: favorites ?? this.favorites,
     );
   }
@@ -41,6 +45,7 @@ class UserModel {
       'email': email,
       'id': id,
       'token': token,
+      'avatar_url': avatar_url,
       'favorites': favorites.map((x) => x.toMap()).toList(),
     };
   }
@@ -51,6 +56,7 @@ class UserModel {
       email: map['email'] ?? "",
       id: map['id'] ?? "",
       token: map['token'] ?? "",
+      avatar_url: map['avatar_url'],
       // 🎯 CORREGIDO: Manejo ultra-seguro de nulos y casteo de mapas
       favorites: map['favorites'] == null
           ? []
@@ -69,7 +75,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(name: $name, email: $email, id: $id, token: $token, favorites: $favorites)';
+    return 'UserModel(name: $name, email: $email, id: $id, token: $token, avatar_url: $avatar_url, favorites: $favorites)';
   }
 
   @override
@@ -81,11 +87,17 @@ class UserModel {
         other.email == email &&
         other.id == id &&
         other.token == token &&
+        other.avatar_url == avatar_url &&
         listEquals(other.favorites, favorites);
   }
 
   @override
   int get hashCode {
-    return name.hashCode ^ email.hashCode ^ id.hashCode ^ token.hashCode ^ favorites.hashCode;
+    return name.hashCode ^
+        email.hashCode ^
+        id.hashCode ^
+        token.hashCode ^
+        avatar_url.hashCode ^
+        favorites.hashCode;
   }
 }

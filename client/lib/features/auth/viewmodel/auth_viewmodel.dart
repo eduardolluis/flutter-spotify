@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:client/core/failure/failure.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/models/user_model.dart';
 import 'package:client/features/auth/repositories/auth_local_repository.dart';
@@ -118,5 +120,28 @@ class AuthViewModel extends _$AuthViewModel {
     await _authLocalRepository.removeToken();
     _currentUserNotifier.removeUser();
     state = const AsyncValue.data(null);
+  }
+
+  /// Sube la foto elegida y actualiza al usuario actual (así el avatar
+  /// nuevo se refleja en toda la app, incluido el Home).
+  Future<Either<AppFailure, UserModel>> updateAvatar(File avatar) async {
+    final currentToken = _authLocalRepository.getToken();
+    if (currentToken == null) {
+      return Left(AppFailure('No estás autenticado.'));
+    }
+
+    state = const AsyncValue.loading();
+    final res = await _authRemoteRepository.uploadAvatar(avatar: avatar, token: currentToken);
+
+    if (!ref.mounted) return res;
+
+    switch (res) {
+      case Left(value: final failure):
+        return Left(failure);
+      case Right(value: final user):
+        _currentUserNotifier.addUser(user);
+        state = AsyncValue.data(user);
+        return Right(user);
+    }
   }
 }

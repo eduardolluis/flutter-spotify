@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:client/core/constants/server_constants.dart';
 import 'package:client/core/failure/failure.dart';
 import 'package:client/core/models/user_model.dart';
@@ -90,6 +91,29 @@ class AuthRemoteRepository {
         Uri.parse('${ServerConstants.serverURL}/auth/'),
         headers: {'Content-Type': 'application/json', 'x-auth-token': token},
       );
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        return Left(AppFailure(resBodyMap['detail'].toString()));
+      }
+      return Right(UserModel.fromMap(resBodyMap).copyWith(token: token));
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, UserModel>> uploadAvatar({
+    required File avatar,
+    required String token,
+  }) async {
+    try {
+      final request =
+          http.MultipartRequest('POST', Uri.parse('${ServerConstants.serverURL}/auth/avatar'))
+            ..headers['x-auth-token'] = token
+            ..files.add(await http.MultipartFile.fromPath('avatar', avatar.path));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
       final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {

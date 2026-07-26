@@ -1,13 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
+import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/loader.dart';
+import 'package:client/features/home/view/pages/profile_page.dart';
+import 'package:client/features/home/view/pages/search_page.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
-import 'package:client/features/home/view/widgets/artists.dart';
-import 'package:client/features/home/view/widgets/home.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,7 @@ class SongsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recentlyPlayedSongs = ref.watch(homeViewModelProvider.notifier).getRecentlyPlayedSongs();
     final currentSong = ref.watch(currentSongProvider);
+    final user = ref.watch(currentUserProvider);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
@@ -35,11 +38,48 @@ class SongsPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (context) => const ProfilePage()));
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Pallete.cardColor,
+                      backgroundImage: (user?.avatar_url != null && user!.avatar_url!.isNotEmpty)
+                          ? CachedNetworkImageProvider(user.avatar_url!)
+                          : null,
+                      child: (user?.avatar_url == null || user!.avatar_url!.isEmpty)
+                          ? const Icon(
+                              CupertinoIcons.person_fill,
+                              size: 20,
+                              color: Pallete.subtitleText,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Hola, ${user?.name.split(' ').first ?? ''}',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Solo mostramos "reproducidas recientemente" si hay algo que mostrar
             if (recentlyPlayedSongs.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
                 child: GridView.builder(
+                  // shrinkWrap y NeverScrollableScrollPhysics permiten al GridView
+                  // calcular su tamaño exacto dentro de una Column.
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -98,7 +138,7 @@ class SongsPage extends ConsumerWidget {
                 .when(
                   data: (songs) {
                     if (songs.isEmpty) {
-                      return EmptySongsState(
+                      return _EmptySongsState(
                         onUpload: () {
                           Navigator.of(
                             context,
@@ -178,7 +218,7 @@ class SongsPage extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        ArtistsSection(songs: songs),
+                        _ArtistsSection(songs: songs),
                       ],
                     );
                   },
@@ -190,6 +230,122 @@ class SongsPage extends ConsumerWidget {
             const SizedBox(height: 100),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Muestra los artistas (derivados de las canciones que ya existen, ya
+/// que todavía no hay una tabla de "artistas" propia) debajo de
+/// "Latest today". Cada nuevo artista aparece automáticamente en cuanto
+/// alguien sube una canción suya.
+class _ArtistsSection extends ConsumerWidget {
+  final List<dynamic> songs;
+
+  const _ArtistsSection({required this.songs});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Un thumbnail representativo por artista (el de su primera canción).
+    final artistThumbnails = <String, String>{};
+    for (final song in songs) {
+      artistThumbnails.putIfAbsent(song.artist, () => song.thumbnail_url);
+    }
+    final artists = artistThumbnails.keys.toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text('Artists', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700)),
+        ),
+        SizedBox(
+          height: 150,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: artists.length,
+            itemBuilder: (context, index) {
+              final artist = artists[index];
+              return GestureDetector(
+                onTap: () {
+                  ref.read(searchQueryProvider.notifier).state = artist;
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (context) => const SearchPage()));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 45,
+                        backgroundColor: Pallete.borderColor,
+                        backgroundImage: CachedNetworkImageProvider(artistThumbnails[artist]!),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: 90,
+                        child: Text(
+                          artist,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Estado vacío amigable que se muestra cuando el usuario todavía
+/// no tiene ninguna canción subida, en vez de dejar "Latest today"
+/// con una lista vacía y fría.
+class _EmptySongsState extends StatelessWidget {
+  final VoidCallback onUpload;
+
+  const _EmptySongsState({required this.onUpload});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      child: Column(
+        children: [
+          const Icon(CupertinoIcons.music_note_2, size: 56, color: Pallete.subtitleText),
+          const SizedBox(height: 16),
+          const Text(
+            "Aún no tienes canciones",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Sube tu primera canción para empezar a armar tu biblioteca.",
+            style: TextStyle(fontSize: 13, color: Pallete.subtitleText),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: onUpload,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Pallete.cardColor,
+              foregroundColor: Pallete.whiteColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+            icon: const Icon(CupertinoIcons.add),
+            label: const Text("Subir canción"),
+          ),
+        ],
       ),
     );
   }
