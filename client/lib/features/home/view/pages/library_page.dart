@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
+import 'package:client/features/home/view/widgets/libray.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +22,7 @@ class LibraryPage extends ConsumerWidget {
         .when(
           data: (data) {
             if (data.isEmpty) {
-              return _EmptyLibraryState(
+              return EmptyLibraryState(
                 onUpload: () {
                   Navigator.of(
                     context,
@@ -47,7 +49,7 @@ class LibraryPage extends ConsumerWidget {
                     onChanged: (value) =>
                         ref.read(librarySearchQueryProvider.notifier).state = value,
                     decoration: InputDecoration(
-                      hintText: 'Buscar en tu biblioteca',
+                      hintText: 'Search your favorite songs',
                       prefixIcon: const Icon(CupertinoIcons.search),
                       filled: true,
                       fillColor: Pallete.borderColor,
@@ -63,7 +65,7 @@ class LibraryPage extends ConsumerWidget {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        'No encontramos canciones para tu búsqueda',
+                        'We couldn\'t find any matches for your search.',
                         style: TextStyle(color: Pallete.subtitleText),
                         textAlign: TextAlign.center,
                       ),
@@ -100,7 +102,7 @@ class LibraryPage extends ConsumerWidget {
                             if (context.mounted) MusicPlayer.open(context);
                           },
                           leading: CircleAvatar(
-                            backgroundImage: NetworkImage(song.thumbnail_url),
+                            backgroundImage: CachedNetworkImageProvider(song.thumbnail_url),
                             radius: 35,
                             backgroundColor: Pallete.backgroundColor,
                           ),
@@ -124,52 +126,5 @@ class LibraryPage extends ConsumerWidget {
           },
           loading: () => const Loader(),
         );
-  }
-}
-
-/// Estado vacío amigable para cuando el usuario aún no tiene canciones
-/// favoritas, en vez de dejar la pantalla en blanco o con un error.
-class _EmptyLibraryState extends StatelessWidget {
-  final VoidCallback onUpload;
-
-  const _EmptyLibraryState({required this.onUpload});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(CupertinoIcons.heart, size: 56, color: Pallete.subtitleText),
-            const SizedBox(height: 16),
-            const Text(
-              "Tu biblioteca está vacía",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "Marca canciones como favoritas o sube la tuya para verlas aquí.",
-              style: TextStyle(fontSize: 13, color: Pallete.subtitleText),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: onUpload,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Pallete.cardColor,
-                foregroundColor: Pallete.whiteColor,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              ),
-              icon: const Icon(CupertinoIcons.add),
-              label: const Text("Subir canción"),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
@@ -45,7 +46,7 @@ class MusicSlab extends ConsumerWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
                           image: DecorationImage(
-                            image: NetworkImage(currentSong.thumbnail_url),
+                            image: CachedNetworkImageProvider(currentSong.thumbnail_url),
                             fit: BoxFit.contain,
                           ),
                         ),

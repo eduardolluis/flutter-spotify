@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
@@ -10,17 +11,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
-  /// Feedback honesto para funciones que todavía no existen (conectar
-  /// dispositivo, playlists), en vez de dejar el ícono sin reacción.
   static void _comingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature: próximamente 👀'), duration: const Duration(seconds: 1)),
+      SnackBar(content: Text('$feature: coming soon 👀'), duration: const Duration(seconds: 1)),
     );
   }
 
-  /// Abre la pantalla completa del reproductor con la misma transición
-  /// que usa el mini-reproductor (MusicSlab), para poder reutilizarla
-  /// desde cualquier lugar donde el usuario toque una canción.
   static void open(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -48,9 +44,6 @@ class MusicPlayer extends ConsumerWidget {
     final repeatOn = ref.watch(repeatProvider);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
 
-    // Si el audioPlayer todavía no se terminó de preparar (ej. la canción
-    // se acaba de tocar y updateSong sigue corriendo), mostramos un loader
-    // en vez de tronar con un null check.
     if (currentSong == null || songNotifier.audioPlayer == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -77,7 +70,10 @@ class MusicPlayer extends ConsumerWidget {
                 offset: const Offset(-15, 0),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Image.asset('assets/icons/pull-down-arrow.png', color: Pallete.whiteColor),
+                  child: Image.asset(
+                    'assets/images/pull-down-arrow.png',
+                    color: Pallete.whiteColor,
+                  ),
                 ),
               ),
             ),
@@ -92,7 +88,7 @@ class MusicPlayer extends ConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage(currentSong.thumbnail_url),
+                            image: CachedNetworkImageProvider(currentSong.thumbnail_url),
                             fit: BoxFit.contain,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -142,7 +138,7 @@ class MusicPlayer extends ConsumerWidget {
                               color: Pallete.whiteColor,
                             ),
                           ),
-  ],
+                        ],
                       ),
                       const SizedBox(height: 15),
                       StreamBuilder(
@@ -213,7 +209,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/shuffle.png',
+                                'assets/images/shuffle.png',
                                 width: 24,
                                 height: 24,
                                 color: shuffleOn ? Pallete.gradient2 : Pallete.whiteColor,
@@ -225,7 +221,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/previus-song.png',
+                                'assets/images/previus-song.png',
                                 width: 24,
                                 height: 24,
                                 color: Pallete.whiteColor,
@@ -247,7 +243,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/next-song.png',
+                                'assets/images/next-song.png',
                                 width: 24,
                                 height: 24,
                                 color: Pallete.whiteColor,
@@ -259,7 +255,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/repeat.png',
+                                'assets/images/repeat.png',
                                 width: 24,
                                 height: 24,
                                 color: repeatOn ? Pallete.gradient2 : Pallete.whiteColor,
@@ -276,7 +272,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/connect-device.png',
+                                'assets/images/connect-device.png',
                                 width: 22,
                                 height: 22,
                                 color: Pallete.whiteColor,
@@ -289,7 +285,7 @@ class MusicPlayer extends ConsumerWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(
-                                'assets/icons/playlist.png',
+                                'assets/images/playlist.png',
                                 width: 22,
                                 height: 22,
                                 color: Pallete.whiteColor,

@@ -47,6 +47,7 @@ dependencies:
   file_picker: ^11.0.2
   audio_waveforms: ^2.0.2
   just_audio: ^0.10.6
+  cached_network_image: ^3.4.1
   hive: ^2.2.3
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.6
