@@ -37,7 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       next.when(
         data: (data) {
           if (data != null) {
-            showSnackBar(context, "¡Welcome Again!");
+            showSnackBar(context, "¡Welcome back!");
 
             Navigator.pushAndRemoveUntil(
               context,
@@ -52,6 +52,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         loading: () {},
       );
     });
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
@@ -74,7 +75,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Log In!",
+                            "Sign In!",
                             style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 30),
@@ -95,7 +96,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           const SizedBox(height: 20),
 
                           AuthGradientButton(
-                            label: "Log In",
+                            label: "Sign In",
                             onTap: () async {
                               if (formKey.currentState!.validate()) {
                                 await ref
@@ -132,7 +133,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               width: 24,
                             ),
                             label: const Text(
-                              "Continuar con Google",
+                              "Continue with Google",
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                           ),

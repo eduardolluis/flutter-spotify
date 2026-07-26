@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: non_constant_identifier_names, public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:client/features/home/models/fav_song_model.dart';

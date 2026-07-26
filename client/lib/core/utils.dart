@@ -12,6 +12,8 @@ String rgbToHex(Color color) {
 }
 
 Color hexToColor(String hex) {
+  // Defensivo: limpia espacios u otros separadores por si el valor viene
+  // de datos guardados antes de corregir rgbToHex (ej. "af 4f 4f").
   final cleanHex = hex.replaceAll(RegExp(r'[^0-9a-fA-F]'), '');
   return Color(int.parse(cleanHex, radix: 16) + 0xFF000000);
 }
@@ -37,6 +39,9 @@ Future<File?> pickImage() async {
 
 Future<File?> pickAudio() async {
   try {
+    // En iOS, FileType.audio abre el selector nativo de Apple Music
+    // (solo canciones compradas/sincronizadas). Usamos FileType.custom
+    // con extensiones concretas para que abra la app Archivos normal.
     final filePickerRes = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'],
@@ -51,22 +56,25 @@ Future<File?> pickAudio() async {
   }
 }
 
+/// Pide confirmación y borra una canción. Vive aquí (no en un widget en
+/// particular) para poder reusarla desde cualquier lista de canciones
+/// (Library, Search, etc.) sin duplicar el diálogo.
 Future<void> confirmDeleteSong(BuildContext context, WidgetRef ref, String songId) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) {
       return AlertDialog(
         backgroundColor: Pallete.cardColor,
-        title: const Text('Delete song'),
-        content: const Text('This action cannot be undone. Are you sure you want to delete it?'),
+        title: const Text('Eliminar canción'),
+        content: const Text('Esta acción no se puede deshacer. ¿Seguro que quieres eliminarla?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Pallete.errorColor)),
+            child: const Text('Eliminar', style: TextStyle(color: Pallete.errorColor)),
           ),
         ],
       );
@@ -82,6 +90,6 @@ Future<void> confirmDeleteSong(BuildContext context, WidgetRef ref, String songI
     case Left(value: final failure):
       showSnackBar(context, failure.message);
     case Right():
-      showSnackBar(context, 'Song deleted successfully');
+      showSnackBar(context, 'Canción eliminada');
   }
 }

@@ -121,6 +121,8 @@ class HomeViewModel extends _$HomeViewModel {
     final user = ref.read(currentUserProvider)!;
     final res = await _homeRepository.deleteSong(token: user.token, songId: songId);
 
+    if (!ref.mounted) return res;
+
     if (res.isRight()) {
       ref.invalidate(getAllSongsProvider);
       ref.invalidate(getFavSongsProvider);

@@ -3,7 +3,7 @@ import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
-import 'package:client/features/home/view/widgets/libray.dart';
+import 'package:client/features/home/view/widgets/library.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,7 +49,7 @@ class LibraryPage extends ConsumerWidget {
                     onChanged: (value) =>
                         ref.read(librarySearchQueryProvider.notifier).state = value,
                     decoration: InputDecoration(
-                      hintText: 'Search your favorite songs',
+                      hintText: 'Search your library',
                       prefixIcon: const Icon(CupertinoIcons.search),
                       filled: true,
                       fillColor: Pallete.borderColor,
@@ -65,7 +65,7 @@ class LibraryPage extends ConsumerWidget {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        'We couldn\'t find any matches for your search.',
+                        'We couldn\'t find any songs matching your search.',
                         style: TextStyle(color: Pallete.subtitleText),
                         textAlign: TextAlign.center,
                       ),

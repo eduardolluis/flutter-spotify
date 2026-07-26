@@ -13,7 +13,7 @@ class MusicPlayer extends ConsumerWidget {
 
   static void _comingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature: coming soon 👀'), duration: const Duration(seconds: 1)),
+      SnackBar(content: Text('$feature: cooming soon'), duration: const Duration(seconds: 1)),
     );
   }
 
@@ -268,7 +268,7 @@ class MusicPlayer extends ConsumerWidget {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => _comingSoon(context, 'Conectar dispositivo'),
+                            onTap: () => _comingSoon(context, 'Connect device'),
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: Image.asset(

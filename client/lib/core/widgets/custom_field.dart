@@ -6,6 +6,7 @@ class CustomField extends StatelessWidget {
   final bool readOnly;
   final TextEditingController? controller;
   final VoidCallback? ontTap;
+  final IconData? prefixIcon;
   const CustomField({
     super.key,
     required this.hintText,
@@ -13,6 +14,7 @@ class CustomField extends StatelessWidget {
     this.isObscureText = false,
     this.readOnly = false,
     this.ontTap,
+    this.prefixIcon,
   });
 
   @override
@@ -20,7 +22,12 @@ class CustomField extends StatelessWidget {
     return TextFormField(
       readOnly: readOnly,
       onTap: ontTap,
-      decoration: InputDecoration(hintText: hintText),
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+        filled: true,
+        fillColor: Colors.black.withValues(alpha: 0.35),
+      ),
       controller: controller,
       obscureText: isObscureText,
       validator: (value) {

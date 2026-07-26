@@ -4,7 +4,6 @@ import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:client/features/home/repositories/home_local_repository.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -60,14 +59,12 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     audioPlayer!.playerStateStream.listen((playerState) {
       if (playerState.processingState == ProcessingState.completed) {
         if (ref.read(repeatProvider)) {
-          // Repetir la misma canción desde el inicio.
           audioPlayer!.seek(Duration.zero);
           audioPlayer!.play();
         } else {
           audioPlayer!.seek(Duration.zero);
           audioPlayer!.pause();
           ref.read(isPlayingProvider.notifier).state = false;
-          // Si hay más canciones en la cola, avanzamos automáticamente.
           skipNext(auto: true);
         }
       }

@@ -55,7 +55,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Pallete.transparentColor, elevation: 0),
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -83,7 +83,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           CustomField(
                             hintText: "Name",
                             controller: _nameController,
-                            prefixIcon: Icons.person_outlined,
+                            prefixIcon: Icons.person_outline,
                           ),
                           const SizedBox(height: 15),
 
@@ -140,7 +140,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                               width: 24,
                             ),
                             label: const Text(
-                              "Continuar con Google",
+                              "Continue with Google",
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                           ),

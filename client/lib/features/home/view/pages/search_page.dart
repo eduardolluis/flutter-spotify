@@ -29,7 +29,7 @@ class SearchPage extends ConsumerWidget {
               autofocus: false,
               onChanged: (value) => ref.read(searchQueryProvider.notifier).state = value,
               decoration: InputDecoration(
-                hintText: 'Songs, artist...',
+                hintText: 'Songs, artists...',
                 prefixIcon: const Icon(CupertinoIcons.search),
                 filled: true,
                 fillColor: Pallete.borderColor,
@@ -59,7 +59,7 @@ class SearchPage extends ConsumerWidget {
                             if (filtered.isEmpty) {
                               return const Center(
                                 child: Text(
-                                  'We couldn\'t find any matches for your search.',
+                                  'We couldn\'t find any matches your search.',
                                   style: TextStyle(color: Pallete.subtitleText),
                                   textAlign: TextAlign.center,
                                 ),

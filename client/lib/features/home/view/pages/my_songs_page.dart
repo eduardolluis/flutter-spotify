@@ -19,7 +19,7 @@ class MySongsPage extends ConsumerWidget {
     final userId = ref.watch(currentUserProvider)?.id;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My songs')),
+      appBar: AppBar(title: const Text('My Songs')),
       body: ref
           .watch(getAllSongsProvider)
           .when(
@@ -40,7 +40,7 @@ class MySongsPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'You haven\'t uploaded any songs yet',
+                          'You haven\'t uploaded any songs yet.',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                           textAlign: TextAlign.center,
                         ),

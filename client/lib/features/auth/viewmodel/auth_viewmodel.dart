@@ -122,12 +122,10 @@ class AuthViewModel extends _$AuthViewModel {
     state = const AsyncValue.data(null);
   }
 
-  /// Sube la foto elegida y actualiza al usuario actual (así el avatar
-  /// nuevo se refleja en toda la app, incluido el Home).
   Future<Either<AppFailure, UserModel>> updateAvatar(File avatar) async {
     final currentToken = _authLocalRepository.getToken();
     if (currentToken == null) {
-      return Left(AppFailure('No estás autenticado.'));
+      return Left(AppFailure('You are not authenticated.'));
     }
 
     state = const AsyncValue.loading();
@@ -137,6 +135,7 @@ class AuthViewModel extends _$AuthViewModel {
 
     switch (res) {
       case Left(value: final failure):
+        state = AsyncValue.error(failure.message, StackTrace.current);
         return Left(failure);
       case Right(value: final user):
         _currentUserNotifier.addUser(user);
