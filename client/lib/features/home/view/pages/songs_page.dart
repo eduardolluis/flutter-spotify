@@ -1,11 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
+import 'package:client/features/home/view/widgets/artists.dart';
+import 'package:client/features/home/view/widgets/home.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,13 +36,10 @@ class SongsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 60),
-            // Solo mostramos "reproducidas recientemente" si hay algo que mostrar
             if (recentlyPlayedSongs.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
                 child: GridView.builder(
-                  // shrinkWrap y NeverScrollableScrollPhysics permiten al GridView
-                  // calcular su tamaño exacto dentro de una Column.
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -73,7 +72,7 @@ class SongsPage extends ConsumerWidget {
                                   bottomLeft: Radius.circular(4),
                                 ),
                                 image: DecorationImage(
-                                  image: NetworkImage(song.thumbnail_url),
+                                  image: CachedNetworkImageProvider(song.thumbnail_url),
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -99,7 +98,7 @@ class SongsPage extends ConsumerWidget {
                 .when(
                   data: (songs) {
                     if (songs.isEmpty) {
-                      return _EmptySongsState(
+                      return EmptySongsState(
                         onUpload: () {
                           Navigator.of(
                             context,
@@ -139,7 +138,7 @@ class SongsPage extends ConsumerWidget {
                                         height: 180,
                                         decoration: BoxDecoration(
                                           image: DecorationImage(
-                                            image: NetworkImage(song.thumbnail_url),
+                                            image: CachedNetworkImageProvider(song.thumbnail_url),
                                             fit: BoxFit.contain,
                                           ),
                                           borderRadius: BorderRadius.circular(7),
@@ -178,6 +177,8 @@ class SongsPage extends ConsumerWidget {
                             },
                           ),
                         ),
+                        const SizedBox(height: 32),
+                        ArtistsSection(songs: songs),
                       ],
                     );
                   },
@@ -189,51 +190,6 @@ class SongsPage extends ConsumerWidget {
             const SizedBox(height: 100),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Estado vacío amigable que se muestra cuando el usuario todavía
-/// no tiene ninguna canción subida, en vez de dejar "Latest today"
-/// con una lista vacía y fría.
-class _EmptySongsState extends StatelessWidget {
-  final VoidCallback onUpload;
-
-  const _EmptySongsState({required this.onUpload});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-      child: Column(
-        children: [
-          const Icon(CupertinoIcons.music_note_2, size: 56, color: Pallete.subtitleText),
-          const SizedBox(height: 16),
-          const Text(
-            "Aún no tienes canciones",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Sube tu primera canción para empezar a armar tu biblioteca.",
-            style: TextStyle(fontSize: 13, color: Pallete.subtitleText),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: onUpload,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Pallete.cardColor,
-              foregroundColor: Pallete.whiteColor,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            ),
-            icon: const Icon(CupertinoIcons.add),
-            label: const Text("Subir canción"),
-          ),
-        ],
       ),
     );
   }
