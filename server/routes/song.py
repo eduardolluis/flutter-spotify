@@ -88,6 +88,30 @@ def list_songs(db: Session = Depends(get_db),
     songs = db.query(Song).all()
     return songs
 
+@router.delete('/{song_id}')
+def delete_song(song_id: str,
+                db: Session = Depends(get_db),
+                auth_details = Depends(auth_middleware)):
+    song_db = db.query(Song).filter(Song.id == song_id).first()
+
+    if not song_db:
+        raise HTTPException(status_code=404, detail='Song not found')
+
+    # Solo el usuario que subió la canción puede eliminarla.
+    if song_db.owner_id != auth_details['uid']:
+        raise HTTPException(
+            status_code=403,
+            detail='Only the user who uploaded this song can delete it'
+        )
+
+    # Borramos primero los favoritos que apunten a esta canción para no
+    # dejar registros huérfanos / violar la foreign key.
+    db.query(Favorite).filter(Favorite.song_id == song_id).delete()
+    db.delete(song_db)
+    db.commit()
+
+    return {"message": "Song deleted successfully."}
+
 @router.post('/favorite')
 def favorite_song( song: FavoriteSong,
                   db: Session = Depends(get_db),  
