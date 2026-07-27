@@ -21,14 +21,7 @@ class MusicSlab extends ConsumerWidget {
     if (currentSong == null) {
       return const SizedBox();
     }
-
     return GestureDetector(
-      onHorizontalDragStart: (_) {
-        songNotifier.skipPrevious();
-      },
-      onHorizontalDragEnd: (_) {
-        songNotifier.skipNext();
-      },
       onTap: () => MusicPlayer.open(context),
       child: Stack(
         children: [

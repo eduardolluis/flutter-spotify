@@ -4,6 +4,7 @@ import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:client/features/home/repositories/home_local_repository.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -11,22 +12,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'current_song_notifier.g.dart';
 
-/// Estado de reproducción (play/pause), shuffle y repeat como
-/// StateProviders simples: NO necesitan generación de código
-/// (build_runner), así que evitan cualquier problema con el .g.dart.
-///
-/// SongModel tiene igualdad por valor (operator ==), así que antes,
-/// reasignar `state = state?.copyWith(...)` con los mismos valores no
-/// disparaba un rebuild en Riverpod (el framework veía el nuevo estado
-/// como "igual" al anterior y no notificaba a los widgets). Por eso el
-/// ícono de play/pause se quedaba pegado. Estos providers aparte sí
-/// cambian de forma confiable.
 final isPlayingProvider = StateProvider<bool>((ref) => false);
 final shuffleProvider = StateProvider<bool>((ref) => false);
 final repeatProvider = StateProvider<bool>((ref) => false);
 
-/// Texto de búsqueda para cada pantalla. Van separados porque el usuario
-/// puede estar buscando algo distinto en Search y en Library al mismo tiempo.
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final librarySearchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -100,8 +89,6 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     ref.read(repeatProvider.notifier).state = !ref.read(repeatProvider);
   }
 
-  /// Cola de canciones usada para "siguiente"/"anterior": la lista completa
-  /// de canciones ya cargada. Si todavía no cargó, no hace nada.
   List<SongModel> _queue() {
     return ref.read(getAllSongsProvider).value ?? [];
   }
@@ -130,9 +117,6 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
       return;
     }
     final nextIndex = (currentIndex + 1) % queue.length;
-    // En modo automático (la canción terminó sola), si ya no hay una
-    // "siguiente" real (llegamos al final) y no hay repeat, simplemente
-    // nos quedamos pausados en la última en vez de reiniciar el ciclo.
     if (auto && nextIndex == 0 && !ref.read(repeatProvider)) return;
     updateSong(queue[nextIndex]);
   }

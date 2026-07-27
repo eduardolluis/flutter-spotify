@@ -68,42 +68,42 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             : Center(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
                     child: Form(
                       key: formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Sign Up!",
-                            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                            "Sign Up",
+                            style: TextStyle(fontSize: 38, fontWeight: FontWeight.w800),
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Create an account to get started.",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
 
-                          CustomField(
-                            hintText: "Name",
-                            controller: _nameController,
-                            prefixIcon: Icons.person_outline,
-                          ),
-                          const SizedBox(height: 15),
+                          CustomField(hintText: "Name", controller: _nameController),
+                          const SizedBox(height: 18),
 
-                          CustomField(
-                            hintText: "Email",
-                            controller: _emailController,
-                            prefixIcon: Icons.email_outlined,
-                          ),
-                          const SizedBox(height: 15),
+                          CustomField(hintText: "Email", controller: _emailController),
+                          const SizedBox(height: 18),
 
                           CustomField(
                             hintText: "Password",
                             controller: _passwordController,
                             isObscureText: true,
-                            prefixIcon: Icons.lock_outline,
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 28),
 
                           AuthGradientButton(
-                            label: "Sign Up",
+                            label: "Continue",
                             onTap: () async {
                               if (formKey.currentState!.validate()) {
                                 await ref
@@ -113,59 +113,80 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                       email: _emailController.text,
                                       password: _passwordController.text,
                                     );
+                                if (!context.mounted) return;
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LoginPage()),
+                                );
                               } else {
                                 showSnackBar(context, "Missing fields!");
                               }
                             },
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 20),
 
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              minimumSize: const Size(double.infinity, 55),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: const BorderSide(color: Colors.grey, width: 0.5),
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.24))),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                child: Text(
+                                  "or",
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                                ),
                               ),
-                              elevation: 1,
-                            ),
-                            onPressed: () {
-                              ref.read(authViewModelProvider.notifier).loginWithGoogle();
-                            },
-                            icon: SvgPicture.asset(
-                              'assets/images/google-logo.svg',
-                              height: 24,
-                              width: 24,
-                            ),
-                            label: const Text(
-                              "Continue with Google",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.24))),
+                            ],
                           ),
                           const SizedBox(height: 20),
 
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginPage()),
-                              );
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                text: "Already have an account? ",
-                                style: Theme.of(context).textTheme.titleMedium,
-                                children: const [
-                                  TextSpan(
-                                    text: "Log In",
-                                    style: TextStyle(
-                                      color: Pallete.gradient2,
-                                      fontWeight: FontWeight.bold,
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
+                                shape: const StadiumBorder(),
+                              ),
+                              onPressed: () {
+                                ref.read(authViewModelProvider.notifier).loginWithGoogle();
+                              },
+                              icon: SvgPicture.asset(
+                                'assets/images/google-logo.svg',
+                                height: 22,
+                                width: 22,
+                              ),
+                              label: const Text(
+                                "Continue with Google",
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                                );
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  text: "Already have an account? ",
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                  children: const [
+                                    TextSpan(
+                                      text: "Log In",
+                                      style: TextStyle(
+                                        color: Pallete.whiteColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),

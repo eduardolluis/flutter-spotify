@@ -11,12 +11,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
+  /// Honest feedback for features that do not exist yet (connect
+  /// device, playlists), instead of leaving the icon unresponsive.
   static void _comingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature: cooming soon'), duration: const Duration(seconds: 1)),
+      SnackBar(content: Text('$feature: coming soon 👀'), duration: const Duration(seconds: 1)),
     );
   }
 
+  /// Opens the full player screen with the same transition used by
+  /// the mini player (MusicSlab), so it can be reused from anywhere
+  /// the user taps a song.
   static void open(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -44,6 +49,9 @@ class MusicPlayer extends ConsumerWidget {
     final repeatOn = ref.watch(repeatProvider);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
 
+    // If the audioPlayer has not finished preparing yet (e.g. the song
+    // was just tapped and updateSong is still running), show a loader
+    // instead of crashing on a null check.
     if (currentSong == null || songNotifier.audioPlayer == null) {
       return const Center(child: CircularProgressIndicator());
     }

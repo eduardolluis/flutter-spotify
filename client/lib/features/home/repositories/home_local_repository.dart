@@ -12,9 +12,9 @@ HomeLocalRepository homeLocalRepository(Ref ref) {
 class HomeLocalRepository {
   final Box box = Hive.box('songs');
 
-  // Las claves se guardan como "<userId>_<songId>" para que "recientemente
-  // escuchado" quede ligado a cada cuenta y no se mezcle entre usuarios
-  // distintos que usan el mismo dispositivo.
+  // Keys are stored as "<userId>_<songId>" so that "recently played" is
+  // scoped per account and doesn't mix between different users sharing
+  // the same device.
   void uploadLocalSong(String userId, SongModel song) {
     box.put('${userId}_${song.id}', song.toJson());
   }

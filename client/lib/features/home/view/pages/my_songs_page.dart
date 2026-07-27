@@ -11,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Screen where each user manages (views and deletes) ONLY the songs
+/// they uploaded themselves, filtering the full list by owner_id.
 class MySongsPage extends ConsumerWidget {
   const MySongsPage({super.key});
 
@@ -40,22 +42,24 @@ class MySongsPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'You haven\'t uploaded any songs yet.',
+                          "You haven't uploaded any songs yet",
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.of(
-                              context,
-                            ).push(MaterialPageRoute(builder: (context) => const UploadSongPage()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => const UploadSongPage()),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Pallete.cardColor,
                             foregroundColor: Pallete.whiteColor,
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
                           ),
                           icon: const Icon(CupertinoIcons.add),
                           label: const Text('Upload song'),

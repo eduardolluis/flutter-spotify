@@ -3,7 +3,6 @@ import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/pages/upload_song_page.dart';
-import 'package:client/features/home/view/widgets/library.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,7 +21,7 @@ class LibraryPage extends ConsumerWidget {
         .when(
           data: (data) {
             if (data.isEmpty) {
-              return EmptyLibraryState(
+              return _EmptyLibraryState(
                 onUpload: () {
                   Navigator.of(
                     context,
@@ -65,7 +64,7 @@ class LibraryPage extends ConsumerWidget {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        'We couldn\'t find any songs matching your search.',
+                        "We couldn't find songs for your search",
                         style: TextStyle(color: Pallete.subtitleText),
                         textAlign: TextAlign.center,
                       ),
@@ -126,5 +125,52 @@ class LibraryPage extends ConsumerWidget {
           },
           loading: () => const Loader(),
         );
+  }
+}
+
+/// Friendly empty state for when the user has no favorite songs yet,
+/// instead of leaving the screen blank or showing an error.
+class _EmptyLibraryState extends StatelessWidget {
+  final VoidCallback onUpload;
+
+  const _EmptyLibraryState({required this.onUpload});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.heart, size: 56, color: Pallete.subtitleText),
+            const SizedBox(height: 16),
+            const Text(
+              "Your library is empty",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Favorite songs or upload your own to see them here.",
+              style: TextStyle(fontSize: 13, color: Pallete.subtitleText),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: onUpload,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Pallete.cardColor,
+                foregroundColor: Pallete.whiteColor,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              icon: const Icon(CupertinoIcons.add),
+              label: const Text("Upload song"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

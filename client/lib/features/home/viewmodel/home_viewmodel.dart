@@ -117,6 +117,9 @@ class HomeViewModel extends _$HomeViewModel {
     state = AsyncValue.data(isFavorited);
   }
 
+  /// Deletes a song. The server already validates that only the owner
+  /// can do this, but we also hide the delete button in the UI for
+  /// anyone who isn't the owner.
   Future<Either<AppFailure, String>> deleteSong(String songId) async {
     final user = ref.read(currentUserProvider)!;
     final res = await _homeRepository.deleteSong(token: user.token, songId: songId);

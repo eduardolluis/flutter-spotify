@@ -11,13 +11,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:fpdart/fpdart.dart';
 
-class ProfilePage extends ConsumerWidget {
-  ProfilePage({super.key});
-  final pickingAvatarProvider = StateProvider<bool>((ref) => false);
+final _pickingAvatarProvider = StateProvider<bool>((ref) => false);
 
-  Future<void> pickAndUploadAvatar(BuildContext context, WidgetRef ref) async {
-    if (ref.read(pickingAvatarProvider)) return;
-    ref.read(pickingAvatarProvider.notifier).state = true;
+class ProfilePage extends ConsumerWidget {
+  const ProfilePage({super.key});
+
+  Future<void> _pickAndUploadAvatar(BuildContext context, WidgetRef ref) async {
+    if (ref.read(_pickingAvatarProvider)) return;
+    ref.read(_pickingAvatarProvider.notifier).state = true;
 
     try {
       final image = await pickImage();
@@ -31,10 +32,10 @@ class ProfilePage extends ConsumerWidget {
         case Left(value: final failure):
           showSnackBar(context, failure.message);
         case Right():
-          showSnackBar(context, 'Foto de perfil actualizada');
+          showSnackBar(context, 'Profile picture updated');
       }
     } finally {
-      ref.read(pickingAvatarProvider.notifier).state = false;
+      ref.read(_pickingAvatarProvider.notifier).state = false;
     }
   }
 
@@ -44,7 +45,7 @@ class ProfilePage extends ConsumerWidget {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Pallete.cardColor,
-          title: const Text('Log Out'),
+          title: const Text('Log out'),
           content: const Text('Are you sure you want to log out?'),
           actions: [
             TextButton(
@@ -53,7 +54,7 @@ class ProfilePage extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Log Out', style: TextStyle(color: Pallete.errorColor)),
+              child: const Text('Log out', style: TextStyle(color: Pallete.errorColor)),
             ),
           ],
         );
@@ -76,7 +77,7 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final isUploadingAvatar = ref.watch(authViewModelProvider).isLoading;
-    final isPicking = ref.watch(pickingAvatarProvider);
+    final isPickingAvatar = ref.watch(_pickingAvatarProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -91,9 +92,9 @@ class ProfilePage extends ConsumerWidget {
                 child: Column(
                   children: [
                     GestureDetector(
-                      onTap: (isUploadingAvatar || isPicking)
+                      onTap: (isUploadingAvatar || isPickingAvatar)
                           ? null
-                          : () => pickAndUploadAvatar(context, ref),
+                          : () => _pickAndUploadAvatar(context, ref),
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
@@ -167,7 +168,7 @@ class ProfilePage extends ConsumerWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(CupertinoIcons.square_arrow_right, color: Pallete.errorColor),
                 title: const Text(
-                  'Log Out',
+                  'Log out',
                   style: TextStyle(color: Pallete.errorColor, fontWeight: FontWeight.w600),
                 ),
                 onTap: () => _confirmLogout(context, ref),

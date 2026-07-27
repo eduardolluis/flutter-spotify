@@ -3,7 +3,6 @@ import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
-import 'package:client/features/home/view/widgets/search.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,7 @@ class SearchPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Expanded(
               child: query.isEmpty
-                  ? const SearchPlaceholder()
+                  ? const _SearchPlaceholder()
                   : ref
                         .watch(getAllSongsProvider)
                         .when(
@@ -51,7 +50,9 @@ class SearchPage extends ConsumerWidget {
                             final filtered = songs
                                 .where(
                                   (song) =>
-                                      song.song_name.toLowerCase().contains(query.toLowerCase()) ||
+                                      song.song_name.toLowerCase().contains(
+                                        query.toLowerCase(),
+                                      ) ||
                                       song.artist.toLowerCase().contains(query.toLowerCase()),
                                 )
                                 .toList();
@@ -59,7 +60,7 @@ class SearchPage extends ConsumerWidget {
                             if (filtered.isEmpty) {
                               return const Center(
                                 child: Text(
-                                  'We couldn\'t find any matches your search.',
+                                  "We couldn't find anything for your search",
                                   style: TextStyle(color: Pallete.subtitleText),
                                   textAlign: TextAlign.center,
                                 ),
@@ -74,7 +75,9 @@ class SearchPage extends ConsumerWidget {
                                 return ListTile(
                                   contentPadding: EdgeInsets.zero,
                                   onTap: () async {
-                                    await ref.read(currentSongProvider.notifier).updateSong(song);
+                                    await ref
+                                        .read(currentSongProvider.notifier)
+                                        .updateSong(song);
                                     if (context.mounted) MusicPlayer.open(context);
                                   },
                                   leading: CircleAvatar(
@@ -104,6 +107,32 @@ class SearchPage extends ConsumerWidget {
                           error: (error, st) => Center(child: Text(error.toString())),
                           loading: () => const Loader(),
                         ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shown while the user hasn't typed anything yet.
+class _SearchPlaceholder extends StatelessWidget {
+  const _SearchPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.search, size: 56, color: Pallete.subtitleText),
+            const SizedBox(height: 16),
+            const Text(
+              'Search for songs or artists',
+              style: TextStyle(fontSize: 16, color: Pallete.subtitleText),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

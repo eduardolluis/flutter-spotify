@@ -41,7 +41,8 @@ def signup_user(user: UserCreate, db: Session = Depends(get_db)):
     return {'token': token, 'user': user_db}
 
 
-@router.post('/login')
+
+@router.post("/login")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
     # check if a user with same email exists in the db
     user_db = db.query(User).filter(User.email == user.email).first()

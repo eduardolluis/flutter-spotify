@@ -27,11 +27,16 @@ class AuthRemoteRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'name': name, 'email': email, 'password': password}),
       );
-      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 201) {
-        return Left(AppFailure(resBodyMap['detail'].toString()));
+        try {
+          final errorMap = jsonDecode(response.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
       }
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       return Right(UserModel.fromMap(resBodyMap['user']).copyWith(token: resBodyMap['token']));
     } catch (e) {
       return Left(AppFailure(e.toString()));
@@ -48,11 +53,17 @@ class AuthRemoteRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
-      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {
-        return Left(AppFailure(resBodyMap['detail'].toString()));
+        try {
+          final errorMap = jsonDecode(response.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
       }
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       return Right(UserModel.fromMap(resBodyMap['user']).copyWith(token: resBodyMap['token']));
     } catch (e) {
       return Left(AppFailure(e.toString()));
@@ -64,7 +75,7 @@ class AuthRemoteRepository {
       final idToken = await GoogleAuthHelper().getIdToken();
 
       if (idToken == null) {
-        return Left(AppFailure('Inicio de sesión cancelado'));
+        return Left(AppFailure('Sign-in cancelled'));
       }
 
       final response = await http.post(
@@ -73,12 +84,16 @@ class AuthRemoteRepository {
         body: jsonEncode({'id_token': idToken}),
       );
 
-      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
-
       if (response.statusCode != 200) {
-        return Left(AppFailure(resBodyMap['detail'] ?? 'Error de autenticación con Google'));
+        try {
+          final errorMap = jsonDecode(response.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'] ?? 'Google authentication error'));
+        } catch (_) {
+          return Left(AppFailure('Error del servidor: ${response.statusCode}'));
+        }
       }
 
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
       return Right(UserModel.fromMap(resBodyMap['user']).copyWith(token: resBodyMap['token']));
     } catch (e) {
       return Left(AppFailure(e.toString()));

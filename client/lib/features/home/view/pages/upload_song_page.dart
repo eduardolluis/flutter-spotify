@@ -76,7 +76,7 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
     });
 
     final homeState = ref.watch(homeViewModelProvider);
-    final isLoading = homeState.isLoading;
+    final isLoading = homeState?.isLoading ?? false;
 
     return Scaffold(
       appBar: AppBar(
