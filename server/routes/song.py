@@ -89,13 +89,13 @@ def list_songs(db: Session = Depends(get_db),
     return [
         {
             'id': song.id,
-            'song_name': song.song_name,
-            'artist': song.artist,
-            'thumbnail_url': song.thumbnail_url,
             'song_url': song.song_url,
+            'thumbnail_url': song.thumbnail_url,
+            'artist': song.artist,
+            'song_name': song.song_name,
             'hex_code': song.hex_code,
             'owner_id': song.owner_id,
-            'owner_avatar_url': song.owner.avatar_url if song.owner else None,
+            'artist_avatar_url': song.owner.avatar_url if song.owner else None,
         }
         for song in songs
     ]
