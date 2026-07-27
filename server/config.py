@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+import cloudinary
 from dotenv import load_dotenv
 
 
@@ -20,3 +20,11 @@ CLOUDINARY_CLOUD_NAME = required_env("CLOUDINARY_CLOUD_NAME")
 CLOUDINARY_API_KEY = required_env("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = required_env("CLOUDINARY_API_SECRET")
 GOOGLE_WEB_CLIENT_ID = required_env("GOOGLE_WEB_CLIENT_ID")
+
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+    secure=True
+)

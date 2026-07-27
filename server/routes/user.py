@@ -1,14 +1,12 @@
-import os
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
+import cloudinary.uploader
+import config 
 from database import get_db
 from models.user import User
 from middleware.auth_middleware import auth_middleware
 
 router = APIRouter()
-
-UPLOAD_DIR = "uploads/avatars"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/avatar")
 async def upload_avatar(
@@ -20,12 +18,16 @@ async def upload_avatar(
     if not user:
         raise HTTPException(404, 'User not found!')
 
-    file_path = f"{UPLOAD_DIR}/{user.id}.jpg"
     contents = await avatar.read()
-    with open(file_path, "wb") as f:
-        f.write(contents)
 
-    user.avatar_url = file_path
+    result = cloudinary.uploader.upload(
+        contents,
+        folder="avatars",
+        public_id=user.id,
+        overwrite=True
+    )
+
+    user.avatar_url = result["secure_url"]
     db.commit()
     db.refresh(user)
 
