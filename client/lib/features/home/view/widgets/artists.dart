@@ -16,7 +16,10 @@ class ArtistsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final artistThumbnails = <String, String>{};
     for (final song in songs) {
-      artistThumbnails.putIfAbsent(song.artist, () => song.thumbnail_url);
+      // Preferimos la foto de perfil del artista (owner_avatar_url).
+      // Si no tiene una (usuario sin avatar aún), usamos la carátula
+      // de la canción como respaldo para no dejar el avatar vacío.
+      artistThumbnails.putIfAbsent(song.artist, () => song.owner_avatar_url ?? song.thumbnail_url);
     }
     final artists = artistThumbnails.keys.toList();
 

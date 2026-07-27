@@ -10,6 +10,7 @@ class SongModel {
   final String song_url;
   final String hex_code;
   final String? owner_id;
+  final String? owner_avatar_url;
   SongModel({
     required this.id,
     required this.song_name,
@@ -18,6 +19,7 @@ class SongModel {
     required this.song_url,
     required this.hex_code,
     this.owner_id,
+    this.owner_avatar_url,
   });
 
   SongModel copyWith({
@@ -28,6 +30,7 @@ class SongModel {
     String? song_url,
     String? hex_code,
     String? owner_id,
+    String? owner_avatar_url,
   }) {
     return SongModel(
       id: id ?? this.id,
@@ -37,6 +40,7 @@ class SongModel {
       song_url: song_url ?? this.song_url,
       hex_code: hex_code ?? this.hex_code,
       owner_id: owner_id ?? this.owner_id,
+      owner_avatar_url: owner_avatar_url ?? this.owner_avatar_url,
     );
   }
 
@@ -49,6 +53,7 @@ class SongModel {
       'song_url': song_url,
       'hex_code': hex_code,
       'owner_id': owner_id,
+      'owner_avatar_url': owner_avatar_url,
     };
   }
 
@@ -61,6 +66,7 @@ class SongModel {
       song_url: map['song_url'] ?? "",
       hex_code: map['hex_code'] ?? "",
       owner_id: map['owner_id'],
+      owner_avatar_url: map['owner_avatar_url'],
     );
   }
 
@@ -71,7 +77,7 @@ class SongModel {
 
   @override
   String toString() {
-    return 'SongModel(id: $id, song_name: $song_name, artist: $artist, thumbnail_url: $thumbnail_url, song_url: $song_url, hex_code: $hex_code, owner_id: $owner_id)';
+    return 'SongModel(id: $id, song_name: $song_name, artist: $artist, thumbnail_url: $thumbnail_url, song_url: $song_url, hex_code: $hex_code, owner_id: $owner_id, owner_avatar_url: $owner_avatar_url)';
   }
 
   @override
@@ -84,7 +90,8 @@ class SongModel {
         other.thumbnail_url == thumbnail_url &&
         other.song_url == song_url &&
         other.hex_code == hex_code &&
-        other.owner_id == owner_id;
+        other.owner_id == owner_id &&
+        other.owner_avatar_url == owner_avatar_url;
   }
 
   @override
@@ -95,6 +102,7 @@ class SongModel {
         thumbnail_url.hashCode ^
         song_url.hashCode ^
         hex_code.hashCode ^
-        owner_id.hashCode;
+        owner_id.hashCode ^
+        owner_avatar_url.hashCode;
   }
 }

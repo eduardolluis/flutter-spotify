@@ -85,8 +85,20 @@ def upload_song(song: UploadFile = File(...),
 @router.get('/list')
 def list_songs(db: Session = Depends(get_db), 
                auth_details = Depends(auth_middleware)):
-    songs = db.query(Song).all()
-    return songs
+    songs = db.query(Song).options(joinedload(Song.owner)).all()
+    return [
+        {
+            'id': song.id,
+            'song_name': song.song_name,
+            'artist': song.artist,
+            'thumbnail_url': song.thumbnail_url,
+            'song_url': song.song_url,
+            'hex_code': song.hex_code,
+            'owner_id': song.owner_id,
+            'owner_avatar_url': song.owner.avatar_url if song.owner else None,
+        }
+        for song in songs
+    ]
 
 @router.delete('/{song_id}')
 def delete_song(song_id: str,
