@@ -37,7 +37,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
     return MaterialApp(
-      title: "Music App",
+      title: "Melodix",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkThemeMode,
       home: currentUser == null ? SignupPage() : const HomePage(),
