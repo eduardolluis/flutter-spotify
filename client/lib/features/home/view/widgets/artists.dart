@@ -3,6 +3,7 @@ import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:client/features/home/view/pages/search_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,14 +15,16 @@ class ArtistsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final artistThumbnails = <String, String>{};
+    final artistAvatars = <String, String?>{};
     for (final song in songs) {
-      // Preferimos la foto de perfil del artista (owner_avatar_url).
-      // Si no tiene una (usuario sin avatar aún), usamos la carátula
-      // de la canción como respaldo para no dejar el avatar vacío.
-      artistThumbnails.putIfAbsent(song.artist, () => song.owner_avatar_url ?? song.thumbnail_url);
+      artistAvatars.putIfAbsent(
+        song.artist,
+        () => (song.artist_avatar_url != null && song.artist_avatar_url!.isNotEmpty)
+            ? song.artist_avatar_url
+            : null,
+      );
     }
-    final artists = artistThumbnails.keys.toList();
+    final artists = artistAvatars.keys.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +54,16 @@ class ArtistsSection extends ConsumerWidget {
                       CircleAvatar(
                         radius: 45,
                         backgroundColor: Pallete.borderColor,
-                        backgroundImage: CachedNetworkImageProvider(artistThumbnails[artist]!),
+                        backgroundImage: artistAvatars[artist] != null
+                            ? CachedNetworkImageProvider(artistAvatars[artist]!)
+                            : null,
+                        child: artistAvatars[artist] == null
+                            ? const Icon(
+                                CupertinoIcons.person_fill,
+                                size: 40,
+                                color: Pallete.subtitleText,
+                              )
+                            : null,
                       ),
                       const SizedBox(height: 8),
                       SizedBox(

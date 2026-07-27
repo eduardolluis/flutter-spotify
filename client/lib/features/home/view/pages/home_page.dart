@@ -41,7 +41,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
+                        color: Colors.black.withValues(alpha: 0.4),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -118,7 +118,7 @@ class _BrandBackground extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [Pallete.gradient1.withOpacity(0.18), Pallete.gradient1.withOpacity(0.0)],
+                colors: [Pallete.gradient1.withValues(alpha: 0.18), Pallete.gradient1.withValues(alpha: 0.0)],
               ),
             ),
           ),
@@ -132,7 +132,7 @@ class _BrandBackground extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [Pallete.gradient3.withOpacity(0.14), Pallete.gradient3.withOpacity(0.0)],
+                colors: [Pallete.gradient3.withValues(alpha: 0.14), Pallete.gradient3.withValues(alpha: 0.0)],
               ),
             ),
           ),

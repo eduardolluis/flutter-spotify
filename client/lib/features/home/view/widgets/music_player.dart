@@ -19,7 +19,6 @@ class MusicPlayer extends ConsumerWidget {
     );
   }
 
-  /// Opens the full player screen with the same transition used by
   /// the mini player (MusicSlab), so it can be reused from anywhere
   /// the user taps a song.
   static void open(BuildContext context) {
@@ -169,7 +168,7 @@ class MusicPlayer extends ConsumerWidget {
                               SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
                                   activeTrackColor: Pallete.whiteColor,
-                                  inactiveTrackColor: Pallete.whiteColor.withOpacity(0.117),
+                                  inactiveTrackColor: Pallete.whiteColor.withValues(alpha: 0.117),
                                   thumbColor: Pallete.whiteColor,
                                   trackHeight: 4,
                                   overlayShape: SliderComponentShape.noOverlay,
