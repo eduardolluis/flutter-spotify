@@ -1,4 +1,4 @@
-import 'package:client/core/theme/app_pallete.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class ProfileStatColumn extends StatelessWidget {

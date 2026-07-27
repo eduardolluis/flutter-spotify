@@ -1,9 +1,9 @@
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/features/home/view/pages/library_page.dart';
-import 'package:client/features/home/view/pages/profile_page.dart';
-import 'package:client/features/home/view/pages/search_page.dart';
-import 'package:client/features/home/view/pages/songs_page.dart';
-import 'package:client/features/home/view/widgets/music_slab.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/features/home/view/pages/library_page.dart';
+import 'package:melodix/features/home/view/pages/profile_page.dart';
+import 'package:melodix/features/home/view/pages/search_page.dart';
+import 'package:melodix/features/home/view/pages/songs_page.dart';
+import 'package:melodix/features/home/view/widgets/music_slab.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,7 +118,10 @@ class _BrandBackground extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [Pallete.gradient1.withValues(alpha: 0.18), Pallete.gradient1.withValues(alpha: 0.0)],
+                colors: [
+                  Pallete.gradient1.withValues(alpha: 0.18),
+                  Pallete.gradient1.withValues(alpha: 0.0),
+                ],
               ),
             ),
           ),
@@ -132,7 +135,10 @@ class _BrandBackground extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
-                colors: [Pallete.gradient3.withValues(alpha: 0.14), Pallete.gradient3.withValues(alpha: 0.0)],
+                colors: [
+                  Pallete.gradient3.withValues(alpha: 0.14),
+                  Pallete.gradient3.withValues(alpha: 0.0),
+                ],
               ),
             ),
           ),

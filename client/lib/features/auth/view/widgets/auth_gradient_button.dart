@@ -1,3 +1,4 @@
+import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 
 class AuthGradientButton extends StatelessWidget {
@@ -12,7 +13,7 @@ class AuthGradientButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: Pallete.whiteColor,
           foregroundColor: Colors.black,
           elevation: 0,
           padding: EdgeInsets.symmetric(vertical: 12),

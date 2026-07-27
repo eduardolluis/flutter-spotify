@@ -1,11 +1,11 @@
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/core/utils.dart';
-import 'package:client/core/widgets/custom_field.dart';
-import 'package:client/core/widgets/loader.dart';
-import 'package:client/features/auth/view/pages/signup_page.dart';
-import 'package:client/features/auth/view/widgets/auth_gradient_button.dart';
-import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
-import 'package:client/features/home/view/pages/home_page.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/core/utils.dart';
+import 'package:melodix/core/widgets/custom_field.dart';
+import 'package:melodix/core/widgets/loader.dart';
+import 'package:melodix/features/auth/view/pages/signup_page.dart';
+import 'package:melodix/features/auth/view/widgets/auth_gradient_button.dart';
+import 'package:melodix/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:melodix/features/home/view/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -75,16 +75,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Login",
-                            style: TextStyle(fontSize: 38, fontWeight: FontWeight.w800),
+                          Row(
+                            children: [
+                              const Text(
+                                "Login",
+                                style: TextStyle(
+                                  fontSize: 38,
+                                  fontWeight: FontWeight.w800,
+                                  color: Pallete.whiteColor,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Pallete.gradient2,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Welcome back, we missed you.",
+                            "Welcome back, your songs are waiting for you.",
                             style: TextStyle(
                               fontSize: 15,
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Pallete.subtitleText,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 36),
@@ -137,7 +155,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 side: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(vertical: 15),
                                 shape: const StadiumBorder(),
                               ),
                               onPressed: () {
@@ -172,7 +190,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     TextSpan(
                                       text: "Sign Up",
                                       style: TextStyle(
-                                        color: Pallete.whiteColor,
+                                        color: Pallete.gradient2,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),

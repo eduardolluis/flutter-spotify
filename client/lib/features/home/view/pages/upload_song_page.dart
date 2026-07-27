@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/core/utils.dart';
-import 'package:client/core/widgets/custom_field.dart';
-import 'package:client/core/widgets/loader.dart';
-import 'package:client/features/home/view/pages/home_page.dart';
-import 'package:client/features/home/view/widgets/audio_wave.dart';
-import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/core/utils.dart';
+import 'package:melodix/core/widgets/custom_field.dart';
+import 'package:melodix/core/widgets/loader.dart';
+import 'package:melodix/features/home/view/pages/home_page.dart';
+import 'package:melodix/features/home/view/widgets/audio_wave.dart';
+import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';

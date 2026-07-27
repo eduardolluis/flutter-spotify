@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:client/core/constants/server_constants.dart';
-import 'package:client/core/failure/failure.dart';
-import 'package:client/core/models/user_model.dart';
-import 'package:client/services/google_auth_service.dart';
+import 'package:melodix/core/constants/server_constants.dart';
+import 'package:melodix/core/failure/failure.dart';
+import 'package:melodix/core/models/user_model.dart';
+import 'package:melodix/services/google_auth_service.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';

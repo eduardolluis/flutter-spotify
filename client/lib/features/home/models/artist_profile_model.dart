@@ -2,7 +2,7 @@ import 'dart:convert';
 
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:client/features/home/models/song_model.dart';
+import 'package:melodix/features/home/models/song_model.dart';
 
 class ArtistProfileModel {
   final String id;

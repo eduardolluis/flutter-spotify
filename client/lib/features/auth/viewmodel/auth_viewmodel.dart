@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:client/core/failure/failure.dart';
-import 'package:client/core/providers/current_user_notifier.dart';
-import 'package:client/core/models/user_model.dart';
-import 'package:client/features/auth/repositories/auth_local_repository.dart';
-import 'package:client/features/auth/repositories/auth_remote_repository.dart';
+import 'package:melodix/core/failure/failure.dart';
+import 'package:melodix/core/providers/current_user_notifier.dart';
+import 'package:melodix/core/models/user_model.dart';
+import 'package:melodix/features/auth/repositories/auth_local_repository.dart';
+import 'package:melodix/features/auth/repositories/auth_remote_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

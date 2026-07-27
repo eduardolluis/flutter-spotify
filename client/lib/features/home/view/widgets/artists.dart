@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/features/home/models/song_model.dart';
-import 'package:client/features/home/view/pages/artist_profile_page.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/features/home/models/song_model.dart';
+import 'package:melodix/features/home/view/pages/artist_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,4 +1,4 @@
-import 'package:client/core/theme/app_pallete.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -2,12 +2,15 @@ PODS:
   - audio_waveforms (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_launcher_plus (0.0.1):
+    - Flutter
   - isar_flutter_libs (1.0.0):
     - Flutter
 
 DEPENDENCIES:
   - audio_waveforms (from `.symlinks/plugins/audio_waveforms/ios`)
   - Flutter (from `Flutter`)
+  - flutter_launcher_plus (from `.symlinks/plugins/flutter_launcher_plus/ios`)
   - isar_flutter_libs (from `.symlinks/plugins/isar_flutter_libs/ios`)
 
 EXTERNAL SOURCES:
@@ -15,12 +18,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audio_waveforms/ios"
   Flutter:
     :path: Flutter
+  flutter_launcher_plus:
+    :path: ".symlinks/plugins/flutter_launcher_plus/ios"
   isar_flutter_libs:
     :path: ".symlinks/plugins/isar_flutter_libs/ios"
 
 SPEC CHECKSUMS:
   audio_waveforms: a6dde7fe7c0ea05f06ffbdb0f7c1b2b2ba6cedcf
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_launcher_plus: 43759acf79530e6fb35b7e03c8d6d01054186203
   isar_flutter_libs: 9fc2cfb928c539e1b76c481ba5d143d556d94920
 
 PODFILE CHECKSUM: 5c0b7560f3eee7b9fc9f28b059de6206de26cb06

@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:client/core/providers/current_song_notifier.dart';
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/core/widgets/loader.dart';
-import 'package:client/features/home/view/widgets/music_player.dart';
-import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:melodix/core/providers/current_song_notifier.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/core/widgets/loader.dart';
+import 'package:melodix/features/home/view/widgets/music_player.dart';
+import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,9 +50,7 @@ class SearchPage extends ConsumerWidget {
                             final filtered = songs
                                 .where(
                                   (song) =>
-                                      song.song_name.toLowerCase().contains(
-                                        query.toLowerCase(),
-                                      ) ||
+                                      song.song_name.toLowerCase().contains(query.toLowerCase()) ||
                                       song.artist.toLowerCase().contains(query.toLowerCase()),
                                 )
                                 .toList();
@@ -75,9 +73,7 @@ class SearchPage extends ConsumerWidget {
                                 return ListTile(
                                   contentPadding: EdgeInsets.zero,
                                   onTap: () async {
-                                    await ref
-                                        .read(currentSongProvider.notifier)
-                                        .updateSong(song);
+                                    await ref.read(currentSongProvider.notifier).updateSong(song);
                                     if (context.mounted) MusicPlayer.open(context);
                                   },
                                   leading: CircleAvatar(

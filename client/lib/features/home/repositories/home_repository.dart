@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:client/core/constants/server_constants.dart';
-import 'package:client/core/failure/failure.dart';
-import 'package:client/features/home/models/artist_profile_model.dart';
-import 'package:client/features/home/models/song_model.dart';
+import 'package:melodix/core/constants/server_constants.dart';
+import 'package:melodix/core/failure/failure.dart';
+import 'package:melodix/features/home/models/artist_profile_model.dart';
+import 'package:melodix/features/home/models/song_model.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';

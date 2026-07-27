@@ -1,5 +1,5 @@
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:client/core/theme/app_pallete.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -64,7 +64,7 @@ class _AudioWaveState extends State<AudioWave> {
             playerController: playerController,
             playerWaveStyle: const PlayerWaveStyle(
               fixedWaveColor: Pallete.borderColor,
-              liveWaveColor : Pallete.gradient2,
+              liveWaveColor: Pallete.gradient2,
               spacing: 7,
               showSeekLine: false,
             ),

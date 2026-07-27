@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:client/core/theme/app_pallete.dart';
-import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

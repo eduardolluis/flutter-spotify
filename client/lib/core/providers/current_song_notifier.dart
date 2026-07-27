@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:client/core/providers/current_user_notifier.dart';
-import 'package:client/features/home/models/song_model.dart';
-import 'package:client/features/home/repositories/home_local_repository.dart';
-import 'package:client/features/home/viewmodel/home_viewmodel.dart';
+import 'package:melodix/core/providers/current_user_notifier.dart';
+import 'package:melodix/features/home/models/song_model.dart';
+import 'package:melodix/features/home/repositories/home_local_repository.dart';
+import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';

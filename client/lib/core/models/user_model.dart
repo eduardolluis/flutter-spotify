@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:client/features/home/models/fav_song_model.dart';
+import 'package:melodix/features/home/models/fav_song_model.dart';
 import 'package:collection/collection.dart';
 
 class UserModel {
