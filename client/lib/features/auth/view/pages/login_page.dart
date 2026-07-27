@@ -137,7 +137,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 side: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
                                 shape: const StadiumBorder(),
                               ),
                               onPressed: () {

@@ -15,7 +15,7 @@ class AuthGradientButton extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.symmetric(vertical: 12),
         ),
         child: Text(
           label,

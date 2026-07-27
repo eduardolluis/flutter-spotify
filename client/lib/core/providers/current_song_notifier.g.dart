@@ -42,7 +42,7 @@ final class CurrentSongNotifierProvider
 }
 
 String _$currentSongNotifierHash() =>
-    r'8a816886eb8f807754b84901b86ee5dd82016ed9';
+    r'd1bf418e7c0ab16f87b984b34a4294f6f63b8357';
 
 abstract class _$CurrentSongNotifier extends $Notifier<SongModel?> {
   SongModel? build();
