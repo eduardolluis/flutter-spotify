@@ -26,12 +26,20 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   @override
   SongModel? build() {
     _homeLocalRepository = ref.watch(homeLocalRepositoryProvider);
+
+    audioPlayer = AudioPlayer();
+
+    ref.onDispose(() {
+      audioPlayer?.dispose();
+    });
+
     return null;
   }
 
   Future<void> updateSong(SongModel song) async {
-    await audioPlayer?.stop();
-    audioPlayer = AudioPlayer();
+    if (audioPlayer == null) return;
+
+    await audioPlayer!.stop();
 
     final audioSource = AudioSource.uri(
       Uri.parse(song.song_url),
@@ -42,6 +50,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
         artUri: Uri.parse(song.thumbnail_url),
       ),
     );
+
     await audioPlayer!.setAudioSource(audioSource);
 
     audioPlayer!.playerStateStream.listen((playerState) {
@@ -57,6 +66,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
         }
       }
     });
+
     _homeLocalRepository.uploadLocalSong(ref.read(currentUserProvider)!.id, song);
 
     audioPlayer!.play();
@@ -65,6 +75,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   }
 
   void playPause() {
+    if (audioPlayer == null) return;
     final playing = ref.read(isPlayingProvider);
     if (playing) {
       audioPlayer!.pause();
@@ -75,6 +86,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   }
 
   void seek(double val) {
+    if (audioPlayer == null || audioPlayer!.duration == null) return;
     audioPlayer!.seek(
       Duration(milliseconds: (val * audioPlayer!.duration!.inMilliseconds).toInt()),
     );
