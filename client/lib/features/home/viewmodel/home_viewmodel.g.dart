@@ -87,6 +87,83 @@ final class GetFavSongsProvider
 
 String _$getFavSongsHash() => r'7a2fc0e9d8b5f6852cb9f1412053c55556888a2b';
 
+@ProviderFor(getArtistProfile)
+final getArtistProfileProvider = GetArtistProfileFamily._();
+
+final class GetArtistProfileProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ArtistProfileModel>,
+          ArtistProfileModel,
+          FutureOr<ArtistProfileModel>
+        >
+    with
+        $FutureModifier<ArtistProfileModel>,
+        $FutureProvider<ArtistProfileModel> {
+  GetArtistProfileProvider._({
+    required GetArtistProfileFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getArtistProfileProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getArtistProfileHash();
+
+  @override
+  String toString() {
+    return r'getArtistProfileProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<ArtistProfileModel> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ArtistProfileModel> create(Ref ref) {
+    final argument = this.argument as String;
+    return getArtistProfile(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetArtistProfileProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getArtistProfileHash() => r'884b8c362b1cf71dcb0c6917d4ba3ab5895314d0';
+
+final class GetArtistProfileFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<ArtistProfileModel>, String> {
+  GetArtistProfileFamily._()
+    : super(
+        retry: null,
+        name: r'getArtistProfileProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetArtistProfileProvider call(String artistId) =>
+      GetArtistProfileProvider._(argument: artistId, from: this);
+
+  @override
+  String toString() => r'getArtistProfileProvider';
+}
+
 @ProviderFor(HomeViewModel)
 final homeViewModelProvider = HomeViewModelProvider._();
 
@@ -111,7 +188,7 @@ final class HomeViewModelProvider
   HomeViewModel create() => HomeViewModel();
 }
 
-String _$homeViewModelHash() => r'21fdf15c122a357b999a5e900dea597629d0902d';
+String _$homeViewModelHash() => r'03a232f75b3a3a0bbe5a17c672aec450e34c4279';
 
 abstract class _$HomeViewModel extends $AsyncNotifier<dynamic> {
   FutureOr<dynamic> build();

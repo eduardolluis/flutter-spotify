@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:client/core/constants/server_constants.dart';
 import 'package:client/core/failure/failure.dart';
+import 'package:client/features/home/models/artist_profile_model.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
@@ -53,9 +54,9 @@ class HomeRepository {
       if (res.statusCode != 200) {
         try {
           final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
-          return Left(AppFailure(errorMap['detail'] ?? 'Error al cargar canciones'));
+          return Left(AppFailure(errorMap['detail'] ?? 'Error loading songs'));
         } catch (_) {
-          return Left(AppFailure('Error del servidor: ${res.statusCode}'));
+          return Left(AppFailure('Server error: ${res.statusCode}'));
         }
       }
 
@@ -80,9 +81,9 @@ class HomeRepository {
       if (res.statusCode != 200) {
         try {
           final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
-          return Left(AppFailure(errorMap['detail'] ?? 'Error al cargar favoritos'));
+          return Left(AppFailure(errorMap['detail'] ?? 'Error loading favorites'));
         } catch (_) {
-          return Left(AppFailure('Error del servidor: ${res.statusCode}'));
+          return Left(AppFailure('Server error: ${res.statusCode}'));
         }
       }
 
@@ -131,6 +132,50 @@ class HomeRepository {
         return Left(AppFailure(resBodyMap['detail'].toString()));
       }
       return Right(resBodyMap['message'] ?? 'Song deleted successfully.');
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, ArtistProfileModel>> getArtistProfile({
+    required String token,
+    required String artistId,
+  }) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ServerConstants.serverURL}/user/$artistId'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      final resBodyMap = jsonDecode(res.body) as Map<String, dynamic>;
+
+      if (res.statusCode != 200) {
+        return Left(AppFailure(resBodyMap['detail'] ?? 'Error loading artist profile'));
+      }
+
+      return Right(ArtistProfileModel.fromMap(resBodyMap));
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, Map<String, dynamic>>> followArtist({
+    required String token,
+    required String artistId,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse('${ServerConstants.serverURL}/user/$artistId/follow'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      final resBodyMap = jsonDecode(res.body) as Map<String, dynamic>;
+
+      if (res.statusCode != 200) {
+        return Left(AppFailure(resBodyMap['detail'] ?? 'Error following artist'));
+      }
+
+      return Right(resBodyMap);
     } catch (e) {
       return Left(AppFailure(e.toString()));
     }

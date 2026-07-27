@@ -1,11 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/features/home/models/song_model.dart';
-import 'package:client/features/home/view/pages/search_page.dart';
+import 'package:client/features/home/view/pages/artist_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class _ArtistInfo {
+  final String? avatarUrl;
+  final String? ownerId;
+
+  _ArtistInfo({this.avatarUrl, this.ownerId});
+}
 
 /// name.
 class ArtistsSection extends ConsumerWidget {
@@ -15,16 +21,19 @@ class ArtistsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final artistAvatars = <String, String?>{};
+    final artistInfo = <String, _ArtistInfo>{};
     for (final song in songs) {
-      artistAvatars.putIfAbsent(
+      artistInfo.putIfAbsent(
         song.artist,
-        () => (song.artist_avatar_url != null && song.artist_avatar_url!.isNotEmpty)
-            ? song.artist_avatar_url
-            : null,
+        () => _ArtistInfo(
+          avatarUrl: (song.artist_avatar_url != null && song.artist_avatar_url!.isNotEmpty)
+              ? song.artist_avatar_url
+              : null,
+          ownerId: song.owner_id,
+        ),
       );
     }
-    final artists = artistAvatars.keys.toList();
+    final artists = artistInfo.keys.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,13 +49,18 @@ class ArtistsSection extends ConsumerWidget {
             itemCount: artists.length,
             itemBuilder: (context, index) {
               final artist = artists[index];
+              final info = artistInfo[artist]!;
               return GestureDetector(
-                onTap: () {
-                  ref.read(searchQueryProvider.notifier).state = artist;
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (context) => const SearchPage()));
-                },
+                onTap: info.ownerId == null
+                    ? null
+                    : () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ArtistProfilePage(artistId: info.ownerId!, artistName: artist),
+                          ),
+                        );
+                      },
                 child: Padding(
                   padding: const EdgeInsets.only(left: 4.0, right: 5),
                   child: Column(
@@ -54,10 +68,10 @@ class ArtistsSection extends ConsumerWidget {
                       CircleAvatar(
                         radius: 45,
                         backgroundColor: Pallete.borderColor,
-                        backgroundImage: artistAvatars[artist] != null
-                            ? CachedNetworkImageProvider(artistAvatars[artist]!)
+                        backgroundImage: info.avatarUrl != null
+                            ? CachedNetworkImageProvider(info.avatarUrl!)
                             : null,
-                        child: artistAvatars[artist] == null
+                        child: info.avatarUrl == null
                             ? const Icon(
                                 CupertinoIcons.person_fill,
                                 size: 40,

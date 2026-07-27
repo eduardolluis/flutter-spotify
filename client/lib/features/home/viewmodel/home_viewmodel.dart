@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:client/core/failure/failure.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/utils.dart';
+import 'package:client/features/home/models/artist_profile_model.dart';
 import 'package:client/features/home/models/fav_song_model.dart';
 import 'package:client/features/home/models/song_model.dart';
 import 'package:client/features/home/repositories/home_local_repository.dart';
@@ -32,6 +33,20 @@ Future<List<SongModel>> getFavSongs(Ref ref) async {
   final token = ref.watch(currentUserProvider.select((user) => user!.token));
 
   final res = await ref.watch(homeRepositoryProvider).getFavSongs(token: token);
+
+  return switch (res) {
+    Left(value: final l) => throw l.message,
+    Right(value: final r) => r,
+  };
+}
+
+@riverpod
+Future<ArtistProfileModel> getArtistProfile(Ref ref, String artistId) async {
+  final token = ref.watch(currentUserProvider.select((user) => user!.token));
+
+  final res = await ref
+      .watch(homeRepositoryProvider)
+      .getArtistProfile(token: token, artistId: artistId);
 
   return switch (res) {
     Left(value: final l) => throw l.message,
@@ -129,6 +144,19 @@ class HomeViewModel extends _$HomeViewModel {
     if (res.isRight()) {
       ref.invalidate(getAllSongsProvider);
       ref.invalidate(getFavSongsProvider);
+    }
+
+    return res;
+  }
+
+  Future<Either<AppFailure, Map<String, dynamic>>> toggleFollow(String artistId) async {
+    final user = ref.read(currentUserProvider)!;
+    final res = await _homeRepository.followArtist(token: user.token, artistId: artistId);
+
+    if (!ref.mounted) return res;
+
+    if (res.isRight()) {
+      ref.invalidate(getArtistProfileProvider(artistId));
     }
 
     return res;
