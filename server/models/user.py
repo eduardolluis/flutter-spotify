@@ -9,5 +9,6 @@ class User(Base):
     name = Column(String(100))
     email = Column(String(100), unique=True, index=True)
     password = Column(LargeBinary)
+    avatar_url = Column(Text, nullable=True)  
 
     favorites = relationship('Favorite', back_populates='user')

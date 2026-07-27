@@ -123,7 +123,7 @@ class AuthRemoteRepository {
   }) async {
     try {
       final request =
-          http.MultipartRequest('POST', Uri.parse('${ServerConstants.serverURL}/auth/avatar'))
+          http.MultipartRequest('POST', Uri.parse('${ServerConstants.serverURL}/user/avatar'))
             ..headers['x-auth-token'] = token
             ..files.add(await http.MultipartFile.fromPath('avatar', avatar.path));
 

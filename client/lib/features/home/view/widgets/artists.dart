@@ -25,7 +25,7 @@ class ArtistsSection extends ConsumerWidget {
       children: [
         const Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('Artists', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700)),
+          child: Text('Artists', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         ),
         SizedBox(
           height: 150,
@@ -42,7 +42,7 @@ class ArtistsSection extends ConsumerWidget {
                   ).push(MaterialPageRoute(builder: (context) => const SearchPage()));
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
+                  padding: const EdgeInsets.only(left: 4.0, right: 5),
                   child: Column(
                     children: [
                       CircleAvatar(

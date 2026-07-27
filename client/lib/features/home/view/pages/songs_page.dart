@@ -87,7 +87,7 @@ class SongsPage extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "Recently played",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -152,7 +152,7 @@ class SongsPage extends ConsumerWidget {
                         },
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                   ],
 
                   // All Songs / Latest Today Section
@@ -176,7 +176,7 @@ class SongsPage extends ConsumerWidget {
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 child: Text(
                                   "Latest today",
-                                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -257,7 +257,6 @@ class SongsPage extends ConsumerWidget {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 24),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
                                 child: ArtistsSection(songs: songs),
