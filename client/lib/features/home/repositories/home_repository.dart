@@ -49,14 +49,44 @@ class HomeRepository {
         Uri.parse('${ServerConstants.serverURL}/song/list'),
         headers: {'Content-Type': 'application/json', 'x-auth-token': token},
       );
-      var resBodyMap = jsonDecode(res.body);
 
       if (res.statusCode != 200) {
-        resBodyMap = resBodyMap as Map<String, dynamic>;
-        return Left(AppFailure(resBodyMap['detail']));
+        try {
+          final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'] ?? 'Error al cargar canciones'));
+        } catch (_) {
+          return Left(AppFailure('Error del servidor: ${res.statusCode}'));
+        }
       }
-      resBodyMap = resBodyMap as List;
 
+      final resBodyMap = jsonDecode(res.body) as List;
+      List<SongModel> songs = [];
+      for (final map in resBodyMap) {
+        songs.add(SongModel.fromMap(map));
+      }
+      return Right(songs);
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, List<SongModel>>> getFavSongs({required String token}) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ServerConstants.serverURL}/song/list/favorites'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      if (res.statusCode != 200) {
+        try {
+          final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'] ?? 'Error al cargar favoritos'));
+        } catch (_) {
+          return Left(AppFailure('Error del servidor: ${res.statusCode}'));
+        }
+      }
+
+      final resBodyMap = jsonDecode(res.body) as List;
       List<SongModel> songs = [];
       for (final map in resBodyMap) {
         songs.add(SongModel.fromMap(map));
@@ -81,30 +111,6 @@ class HomeRepository {
         return Left(AppFailure(resBodyMap['detail']));
       }
       return Right(resBodyMap['is_favorite']);
-    } catch (e) {
-      return Left(AppFailure(e.toString()));
-    }
-  }
-
-  Future<Either<AppFailure, List<SongModel>>> getFavSongs({required String token}) async {
-    try {
-      final res = await http.get(
-        Uri.parse('${ServerConstants.serverURL}/song/list/favorites'),
-        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
-      );
-      var resBodyMap = jsonDecode(res.body);
-
-      if (res.statusCode != 200) {
-        resBodyMap = resBodyMap as Map<String, dynamic>;
-        return Left(AppFailure(resBodyMap['detail']));
-      }
-      resBodyMap = resBodyMap as List;
-
-      List<SongModel> songs = [];
-      for (final map in resBodyMap) {
-        songs.add(SongModel.fromMap(map));
-      }
-      return Right(songs);
     } catch (e) {
       return Left(AppFailure(e.toString()));
     }

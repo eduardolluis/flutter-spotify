@@ -49,9 +49,6 @@ class MusicPlayer extends ConsumerWidget {
     final repeatOn = ref.watch(repeatProvider);
     final userFavorites = ref.watch(currentUserProvider.select((data) => data!.favorites));
 
-    // If the audioPlayer has not finished preparing yet (e.g. the song
-    // was just tapped and updateSong is still running), show a loader
-    // instead of crashing on a null check.
     if (currentSong == null || songNotifier.audioPlayer == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -93,13 +90,18 @@ class MusicPlayer extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 30),
                     child: Hero(
                       tag: 'music-image',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: CachedNetworkImageProvider(currentSong.thumbnail_url),
-                            fit: BoxFit.contain,
+                      child: Center(
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: CachedNetworkImageProvider(currentSong.thumbnail_url),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),

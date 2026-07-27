@@ -122,8 +122,6 @@ class AuthViewModel extends _$AuthViewModel {
     state = const AsyncValue.data(null);
   }
 
-  /// Uploads the chosen photo and updates the current user (so the new
-  /// avatar reflects everywhere in the app, including Home).
   Future<Either<AppFailure, UserModel>> updateAvatar(File avatar) async {
     final currentToken = _authLocalRepository.getToken();
     if (currentToken == null) {

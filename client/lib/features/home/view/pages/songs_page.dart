@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SongsPage extends ConsumerWidget {
   const SongsPage({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recentlyPlayedSongs = ref.watch(homeViewModelProvider.notifier).getRecentlyPlayedSongs();
@@ -35,13 +36,17 @@ class SongsPage extends ConsumerWidget {
               ),
             ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 50),
+          // Header de Perfil
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProfilePage()));
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => const ProfilePage()));
               },
               child: Row(
                 children: [
@@ -59,81 +64,98 @@ class SongsPage extends ConsumerWidget {
                           )
                         : null,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Text(
                     'Hello, ${user?.name.split(' ').first ?? ''}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+
           Expanded(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (recentlyPlayedSongs.isNotEmpty)
+                  // Recently Played Section
+                  if (recentlyPlayedSongs.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "Recently played",
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 200,
-                          childAspectRatio: 3,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: recentlyPlayedSongs.length,
-                        itemBuilder: (context, index) {
-                          final song = recentlyPlayedSongs[index];
-                          return GestureDetector(
-                            onTap: () async {
-                              await ref.read(currentSongProvider.notifier).updateSong(song);
-                              if (context.mounted) MusicPlayer.open(context);
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Pallete.borderColor,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              padding: const EdgeInsets.only(right: 20),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final cardWidth = (constraints.maxWidth - 10) / 2;
+                          return Wrap(
+                            spacing: 10,
+                            runSpacing: 8,
+                            children: recentlyPlayedSongs.map((song) {
+                              return SizedBox(
+                                width: cardWidth,
+                                height: 62,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await ref.read(currentSongProvider.notifier).updateSong(song);
+                                    if (context.mounted) MusicPlayer.open(context);
+                                  },
+                                  child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(4),
-                                        bottomLeft: Radius.circular(4),
-                                      ),
-                                      image: DecorationImage(
-                                        image: CachedNetworkImageProvider(song.thumbnail_url),
-                                        fit: BoxFit.contain,
-                                      ),
+                                      color: Pallete.cardColor.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 48,
+                                          height: double.infinity,
+                                          child: ClipRRect(
+                                            borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(6),
+                                              bottomLeft: Radius.circular(6),
+                                            ),
+                                            child: CachedNetworkImage(
+                                              imageUrl: song.thumbnail_url,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          child: Text(
+                                            song.song_name,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      song.song_name,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              );
+                            }).toList(),
                           );
                         },
                       ),
                     ),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // All Songs / Latest Today Section
                   ref
                       .watch(getAllSongsProvider)
                       .when(
@@ -151,16 +173,18 @@ class SongsPage extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: EdgeInsets.symmetric(horizontal: 16),
                                 child: Text(
                                   "Latest today",
-                                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
+                                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                                 ),
                               ),
+                              const SizedBox(height: 12),
                               SizedBox(
-                                height: 260,
+                                height: 240,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
                                   itemCount: songs.length,
                                   itemBuilder: (context, index) {
                                     final song = songs[index];
@@ -172,47 +196,58 @@ class SongsPage extends ConsumerWidget {
                                         if (context.mounted) MusicPlayer.open(context);
                                       },
                                       child: Padding(
-                                        padding: const EdgeInsets.only(left: 16.0),
+                                        padding: EdgeInsets.only(
+                                          left: index == 0 ? 16 : 12,
+                                          right: index == songs.length - 1 ? 16 : 0,
+                                        ),
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Container(
-                                              width: 180,
-                                              height: 180,
+                                              width: 155,
+                                              height: 155,
                                               decoration: BoxDecoration(
                                                 image: DecorationImage(
                                                   image: CachedNetworkImageProvider(
                                                     song.thumbnail_url,
                                                   ),
-                                                  fit: BoxFit.contain,
+                                                  fit: BoxFit.cover,
                                                 ),
-                                                borderRadius: BorderRadius.circular(7),
+                                                borderRadius: BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.3),
+                                                    blurRadius: 8,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            const SizedBox(height: 5),
+                                            const SizedBox(height: 8),
                                             SizedBox(
-                                              width: 180,
+                                              width: 155,
                                               child: Text(
                                                 song.song_name,
                                                 style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                                 maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
+                                            const SizedBox(height: 2),
                                             SizedBox(
-                                              width: 180,
+                                              width: 155,
                                               child: Text(
                                                 song.artist,
                                                 style: const TextStyle(
                                                   color: Pallete.subtitleText,
-                                                  fontSize: 13,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.w500,
-                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                                 maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ],
@@ -222,8 +257,11 @@ class SongsPage extends ConsumerWidget {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 32),
-                              ArtistsSection(songs: songs),
+                              const SizedBox(height: 24),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: ArtistsSection(songs: songs),
+                              ),
                             ],
                           );
                         },
@@ -232,7 +270,7 @@ class SongsPage extends ConsumerWidget {
                         },
                         loading: () => const Loader(),
                       ),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 110),
                 ],
               ),
             ),

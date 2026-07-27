@@ -6,9 +6,6 @@ import 'package:client/features/home/view/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Shows artists derived from the existing songs (there's no dedicated
-/// artist table yet), displayed below "Latest today". A new artist
-/// appears automatically as soon as someone uploads a song under that
 /// name.
 class ArtistsSection extends ConsumerWidget {
   final List<SongModel> songs;
@@ -17,7 +14,6 @@ class ArtistsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // One representative thumbnail per artist (their first song's).
     final artistThumbnails = <String, String>{};
     for (final song in songs) {
       artistThumbnails.putIfAbsent(song.artist, () => song.thumbnail_url);

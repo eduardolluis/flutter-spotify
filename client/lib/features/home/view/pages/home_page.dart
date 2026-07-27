@@ -22,20 +22,47 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      backgroundColor: Pallete.backgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: _BrandBackground()),
           Positioned.fill(child: pages[selectedIndex]),
-          const Positioned(bottom: 0, left: 0, right: 0, child: MusicSlab()),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: const ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    child: MusicSlab(),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Pallete.backgroundColor,
+        elevation: 0,
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
-        onTap: (value) {
-          setState(() {
-            selectedIndex = value;
-          });
-        },
+        onTap: (value) => setState(() => selectedIndex = value),
         items: [
           BottomNavigationBarItem(
             icon: Image.asset(
@@ -69,6 +96,48 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _BrandBackground extends StatelessWidget {
+  const _BrandBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(color: Pallete.backgroundColor),
+        // blob difuminado arriba a la derecha, muy sutil
+        Positioned(
+          top: -80,
+          right: -60,
+          child: Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [Pallete.gradient1.withOpacity(0.18), Pallete.gradient1.withOpacity(0.0)],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 100,
+          left: -80,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [Pallete.gradient3.withOpacity(0.14), Pallete.gradient3.withOpacity(0.0)],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
