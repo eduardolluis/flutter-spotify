@@ -5,6 +5,7 @@ import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
 import 'package:client/core/widgets/loader.dart';
 import 'package:client/features/home/view/widgets/music_player.dart';
+import 'package:client/features/home/view/widgets/profile_stat_column.dart';
 import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -95,9 +96,15 @@ class _ArtistProfilePageState extends ConsumerState<ArtistProfilePage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _StatColumn(count: artist.followers_count, label: 'Followers'),
+                                ProfileStatColumn(
+                                  count: artist.followers_count,
+                                  label: 'Followers',
+                                ),
                                 const SizedBox(width: 32),
-                                _StatColumn(count: artist.following_count, label: 'Following'),
+                                ProfileStatColumn(
+                                  count: artist.following_count,
+                                  label: 'Following',
+                                ),
                               ],
                             ),
                             if (!isOwnProfile) ...[
@@ -219,24 +226,6 @@ class _ArtistProfilePageState extends ConsumerState<ArtistProfilePage> {
               loading: () => const Loader(),
             ),
       ),
-    );
-  }
-}
-
-class _StatColumn extends StatelessWidget {
-  final int count;
-  final String label;
-
-  const _StatColumn({required this.count, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('$count', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 13, color: Pallete.subtitleText)),
-      ],
     );
   }
 }

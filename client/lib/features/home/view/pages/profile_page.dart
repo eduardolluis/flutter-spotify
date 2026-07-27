@@ -5,6 +5,8 @@ import 'package:client/core/utils.dart';
 import 'package:client/features/auth/view/pages/signup_page.dart';
 import 'package:client/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:client/features/home/view/pages/my_songs_page.dart';
+import 'package:client/features/home/view/widgets/profile_stat_column.dart';
+import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -145,6 +147,35 @@ class ProfilePage extends ConsumerWidget {
                       user?.email ?? '',
                       style: const TextStyle(fontSize: 14, color: Pallete.subtitleText),
                     ),
+                    if (user != null) ...[
+                      const SizedBox(height: 16),
+                      ref
+                          .watch(getArtistProfileProvider(user.id))
+                          .when(
+                            data: (profile) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ProfileStatColumn(
+                                    count: profile.followers_count,
+                                    label: 'Followers',
+                                  ),
+                                  const SizedBox(width: 32),
+                                  ProfileStatColumn(
+                                    count: profile.following_count,
+                                    label: 'Following',
+                                  ),
+                                ],
+                              );
+                            },
+                            error: (error, stackTrace) => const SizedBox.shrink(),
+                            loading: () => const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                    ],
                   ],
                 ),
               ),
