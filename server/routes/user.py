@@ -8,6 +8,7 @@ from models.user import User
 from models.song import Song
 from models.follow import Follow
 from middleware.auth_middleware import auth_middleware
+from routes.auth import _serialize_user
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ async def upload_avatar(
     db: Session = Depends(get_db),
     user_dict = Depends(auth_middleware)
 ):
-    user = db.query(User).filter(User.id == user_dict['uid']).first()
+    user = db.query(User).options(joinedload(User.favorites)).filter(User.id == user_dict['uid']).first()
     if not user:
         raise HTTPException(404, 'User not found!')
 
@@ -34,7 +35,7 @@ async def upload_avatar(
     db.commit()
     db.refresh(user)
 
-    return user
+    return _serialize_user(user)
 
 
 @router.get('/{artist_id}')

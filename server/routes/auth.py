@@ -3,7 +3,7 @@ import jwt
 import bcrypt
 import requests  # Para validar el token con los servidores de Google
 from pydantic import BaseModel
-from config import JWT_SECRET
+from config import JWT_SECRET, GOOGLE_WEB_CLIENT_ID
 from middleware.auth_middleware import auth_middleware      
 from fastapi import Depends, HTTPException, APIRouter, Header
 from sqlalchemy.orm import Session, joinedload
@@ -17,6 +17,21 @@ router = APIRouter()
 # Esquema para recibir el id_token enviado desde Flutter
 class GoogleAuthSchema(BaseModel):
     id_token: str
+
+
+def _serialize_user(user_db: User) -> dict:
+    """Never serialize the raw ORM object: it carries the bcrypt password
+    hash and returning it as-is leaks that hash to the client."""
+    return {
+        'id': user_db.id,
+        'name': user_db.name,
+        'email': user_db.email,
+        'avatar_url': user_db.avatar_url,
+        'favorites': [
+            {'id': f.id, 'song_id': f.song_id, 'user_id': f.user_id}
+            for f in (user_db.favorites or [])
+        ],
+    }
 
 
 @router.post("/signup", status_code=201)
@@ -38,7 +53,7 @@ def signup_user(user: UserCreate, db: Session = Depends(get_db)):
 
     token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
-    return {'token': token, 'user': user_db}
+    return {'token': token, 'user': _serialize_user(user_db)}
 
 
 
@@ -57,7 +72,7 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     
     token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
-    return {'token': token, 'user': user_db}
+    return {'token': token, 'user': _serialize_user(user_db)}
 
 
 @router.post('/google-mobile')
@@ -73,6 +88,13 @@ def google_auth_mobile(data: GoogleAuthSchema, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Token de Google inválido")
 
         google_data = google_res.json()
+
+        # CRITICAL: tokeninfo only proves the token is a *valid Google* token —
+        # it doesn't prove it was issued for *this* app. Without checking `aud`,
+        # a valid Google id_token from any other app would also be accepted here.
+        if google_data.get("aud") != GOOGLE_WEB_CLIENT_ID:
+            raise HTTPException(status_code=401, detail="Token de Google no pertenece a esta app")
+
         email = google_data.get("email")
         name = google_data.get("name", "Usuario de Google")
 
@@ -99,7 +121,7 @@ def google_auth_mobile(data: GoogleAuthSchema, db: Session = Depends(get_db)):
         # 4. Generar tu propio token JWT
         token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
-        return {'token': token, 'user': user_db}
+        return {'token': token, 'user': _serialize_user(user_db)}
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -114,5 +136,5 @@ def current_user_data(db: Session = Depends(get_db),
 
    if not user:
        raise HTTPException(404, 'User not found!')
-   
-   return user
+
+   return _serialize_user(user)
