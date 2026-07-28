@@ -1,7 +1,7 @@
 import uuid
 import jwt
 import bcrypt
-import requests  # Para validar el token con los servidores de Google
+import requests  
 from pydantic import BaseModel
 from config import JWT_SECRET, GOOGLE_WEB_CLIENT_ID
 from middleware.auth_middleware import auth_middleware      
@@ -14,7 +14,6 @@ from database import get_db
 
 router = APIRouter()
 
-# Esquema para recibir el id_token enviado desde Flutter
 class GoogleAuthSchema(BaseModel):
     id_token: str
 
@@ -78,35 +77,30 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 @router.post('/google-mobile')
 def google_auth_mobile(data: GoogleAuthSchema, db: Session = Depends(get_db)):
     try:
-
-        # Validar el id_token directamente con la API de Google
         google_res = requests.get(
             f"https://oauth2.googleapis.com/tokeninfo?id_token={data.id_token}"
         )
 
         if google_res.status_code != 200:
-            raise HTTPException(status_code=400, detail="Token de Google inválido")
+            raise HTTPException(status_code=400, detail="Google Token Invalid")
 
         google_data = google_res.json()
 
-        # CRITICAL: tokeninfo only proves the token is a *valid Google* token —
-        # it doesn't prove it was issued for *this* app. Without checking `aud`,
-        # a valid Google id_token from any other app would also be accepted here.
+        print("DEBUG -> AUD que llega de Google:", google_data.get("aud"))
+        print("DEBUG -> AUD esperado en servidor:", GOOGLE_WEB_CLIENT_ID)
+
         if google_data.get("aud") != GOOGLE_WEB_CLIENT_ID:
-            raise HTTPException(status_code=401, detail="Token de Google no pertenece a esta app")
+            raise HTTPException(status_code=401, detail="Google Token does not belong to this app")
 
         email = google_data.get("email")
-        name = google_data.get("name", "Usuario de Google")
+        name = google_data.get("name", "Google User")
 
         if not email:
-            raise HTTPException(status_code=400, detail="No se pudo obtener el correo de Google")
+            raise HTTPException(status_code=400, detail="Email not found in Google token data")
 
-        # 2. Verificar si el usuario ya existe en tu DB
         user_db = db.query(User).filter(User.email == email).first()
 
-        # 3. Si no existe, creamos la cuenta automáticamente
         if not user_db:
-            # Generamos un hash aleatorio ya que este usuario inicia sesión con Google
             random_pw = bcrypt.hashpw(str(uuid.uuid4()).encode("utf-8"), bcrypt.gensalt())
             user_db = User(
                 id=str(uuid.uuid4()),
@@ -118,12 +112,12 @@ def google_auth_mobile(data: GoogleAuthSchema, db: Session = Depends(get_db)):
             db.commit()
             db.refresh(user_db)
 
-        # 4. Generar tu propio token JWT
         token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
         return {'token': token, 'user': _serialize_user(user_db)}
 
     except Exception as e:
+        print("ERROR DETALLADO EN GOOGLE AUTH EXCEPTION:", str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 
