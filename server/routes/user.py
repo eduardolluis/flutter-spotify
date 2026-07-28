@@ -78,6 +78,7 @@ def get_artist_profile(
                 'artist': song.artist,
                 'song_name': song.song_name,
                 'hex_code': song.hex_code,
+                'genre': song.genre,
                 'owner_id': song.owner_id,
                 'artist_avatar_url': song.owner.avatar_url if song.owner else None,
             }
@@ -122,3 +123,70 @@ def follow_artist(
         'is_following': is_following,
         'followers_count': followers_count,
     }
+
+
+def _serialize_user_list(users, db: Session, viewer_id: str):
+    """Shared shape for followers/following list items, including whether
+    the requesting user already follows each person in the list."""
+    if not users:
+        return []
+
+    user_ids = [u.id for u in users]
+    following_ids = {
+        row.followed_id
+        for row in db.query(Follow.followed_id).filter(
+            Follow.follower_id == viewer_id,
+            Follow.followed_id.in_(user_ids),
+        )
+    }
+
+    return [
+        {
+            'id': user.id,
+            'name': user.name,
+            'avatar_url': user.avatar_url,
+            'is_following': user.id in following_ids,
+            'is_self': user.id == viewer_id,
+        }
+        for user in users
+    ]
+
+
+@router.get('/{artist_id}/followers')
+def get_followers(
+    artist_id: str,
+    db: Session = Depends(get_db),
+    auth_details = Depends(auth_middleware)
+):
+    artist = db.query(User).filter(User.id == artist_id).first()
+    if not artist:
+        raise HTTPException(status_code=404, detail='Artist not found')
+
+    followers = (
+        db.query(User)
+        .join(Follow, Follow.follower_id == User.id)
+        .filter(Follow.followed_id == artist_id)
+        .all()
+    )
+
+    return _serialize_user_list(followers, db, auth_details['uid'])
+
+
+@router.get('/{artist_id}/following')
+def get_following(
+    artist_id: str,
+    db: Session = Depends(get_db),
+    auth_details = Depends(auth_middleware)
+):
+    artist = db.query(User).filter(User.id == artist_id).first()
+    if not artist:
+        raise HTTPException(status_code=404, detail='Artist not found')
+
+    following = (
+        db.query(User)
+        .join(Follow, Follow.followed_id == User.id)
+        .filter(Follow.follower_id == artist_id)
+        .all()
+    )
+
+    return _serialize_user_list(following, db, auth_details['uid'])

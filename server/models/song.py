@@ -12,6 +12,7 @@ class Song(Base):
     artist = Column(String(200), nullable=False)
     song_name = Column(String(200), nullable=False)
     hex_code = Column(String(7), nullable=False)
+    genre = Column(String(50), nullable=True)
     owner_id = Column(Text, ForeignKey("users.id"))
 
     owner = relationship('User')
