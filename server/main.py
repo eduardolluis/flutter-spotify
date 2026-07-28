@@ -5,12 +5,14 @@ from models.base import Base
 from routes import auth, song
 
 from routes.user import router as user_router
+from routes.playlist import router as playlist_router
 
 app = FastAPI()
 
 app.include_router(auth.router, prefix='/auth')
 app.include_router(song.router, prefix='/song')
 app.include_router(user_router, prefix='/user')
+app.include_router(playlist_router, prefix='/playlist')
 
 Base.metadata.create_all(bind=engine)
 
