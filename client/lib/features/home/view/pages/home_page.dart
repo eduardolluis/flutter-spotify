@@ -32,6 +32,28 @@ class _HomePageState extends ConsumerState<HomePage> {
             bottom: 0,
             left: 0,
             right: 0,
+            child: IgnorePointer(
+              child: Container(
+                height: 130,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Pallete.backgroundColor.withValues(alpha: 0.0),
+                      Pallete.backgroundColor.withValues(alpha: 0.85),
+                      Pallete.backgroundColor,
+                    ],
+                    stops: const [0.0, 0.6, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
             child: SafeArea(
               top: false,
               child: Padding(

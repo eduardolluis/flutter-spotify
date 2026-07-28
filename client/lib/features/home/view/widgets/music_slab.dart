@@ -30,49 +30,78 @@ class MusicSlab extends ConsumerWidget {
             height: 66,
             width: MediaQuery.of(context).size.width - 16,
             decoration: BoxDecoration(
-              color: hexToColor(currentSong.hex_code),
+              gradient: LinearGradient(
+                colors: [
+                  hexToColor(currentSong.hex_code),
+                  Color.alphaBlend(
+                    Colors.black.withValues(alpha: 0.35),
+                    hexToColor(currentSong.hex_code),
+                  ),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             padding: const EdgeInsets.all(9),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Hero(
-                      tag: 'music-image',
-                      child: Container(
-                        width: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          image: DecorationImage(
-                            image: CachedNetworkImageProvider(currentSong.thumbnail_url),
-                            fit: BoxFit.contain,
-                          ),
-                        ),
+                Hero(
+                  tag: 'music-image',
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(currentSong.thumbnail_url),
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                         Text(
                           currentSong.song_name,
-                          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Pallete.whiteColor,
+                            shadows: [
+                              Shadow(color: Colors.black45, offset: Offset(0, 1), blurRadius: 3),
+                            ],
+                          ),
                         ),
                         Text(
                           currentSong.artist,
-                          style: TextStyle(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                            color: Pallete.subtitleText,
+                            fontSize: 13,
+                            color: Colors.white70,
+                            shadows: [
+                              Shadow(color: Colors.black45, offset: Offset(0, 1), blurRadius: 3),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
                 Row(
                   children: [
                     IconButton(
