@@ -9,6 +9,7 @@ from models.song import Song
 from models.follow import Follow
 from middleware.auth_middleware import auth_middleware
 from routes.auth import _serialize_user
+from pydantic_schemas.user_update import UserUpdate
 
 router = APIRouter()
 
@@ -32,6 +33,39 @@ async def upload_avatar(
     )
 
     user.avatar_url = result["secure_url"]
+    db.commit()
+    db.refresh(user)
+
+    return _serialize_user(user)
+
+
+@router.put("/")
+def update_profile(
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    user_dict = Depends(auth_middleware)
+):
+    user = db.query(User).options(joinedload(User.favorites)).filter(User.id == user_dict['uid']).first()
+    if not user:
+        raise HTTPException(404, 'User not found!')
+
+    if payload.name is not None:
+        name = payload.name.strip()
+        if not name:
+            raise HTTPException(400, 'Name cannot be empty')
+        user.name = name
+
+    if payload.email is not None:
+        email = payload.email.strip().lower()
+        if not email:
+            raise HTTPException(400, 'Email cannot be empty')
+
+        existing = db.query(User).filter(User.email == email, User.id != user.id).first()
+        if existing:
+            raise HTTPException(400, 'That email is already in use')
+
+        user.email = email
+
     db.commit()
     db.refresh(user)
 
