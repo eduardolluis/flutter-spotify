@@ -39,10 +39,12 @@ class SearchPage extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Expanded(
               child: query.isEmpty
-                  ? const _SearchPlaceholder()
+                  ? _SearchBrowseGrid(
+                      onSelectGenre: (genre) => ref.read(searchQueryProvider.notifier).state = genre,
+                    )
                   : ref
                         .watch(getAllSongsProvider)
                         .when(
@@ -76,10 +78,14 @@ class SearchPage extends ConsumerWidget {
                                     await ref.read(currentSongProvider.notifier).updateSong(song);
                                     if (context.mounted) MusicPlayer.open(context);
                                   },
-                                  leading: CircleAvatar(
-                                    backgroundImage: CachedNetworkImageProvider(song.thumbnail_url),
-                                    radius: 25,
-                                    backgroundColor: Pallete.backgroundColor,
+                                  leading: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: CachedNetworkImage(
+                                      imageUrl: song.thumbnail_url,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                   title: Text(
                                     song.song_name,
@@ -96,6 +102,11 @@ class SearchPage extends ConsumerWidget {
                                       color: Pallete.subtitleText,
                                     ),
                                   ),
+                                  trailing: const Icon(
+                                    CupertinoIcons.play_fill,
+                                    size: 18,
+                                    color: Pallete.subtitleText,
+                                  ),
                                 );
                               },
                             );
@@ -111,27 +122,62 @@ class SearchPage extends ConsumerWidget {
   }
 }
 
-/// Shown while the user hasn't typed anything yet.
-class _SearchPlaceholder extends StatelessWidget {
-  const _SearchPlaceholder();
+class _SearchBrowseGrid extends StatelessWidget {
+  final ValueChanged<String> onSelectGenre;
+
+  const _SearchBrowseGrid({required this.onSelectGenre});
+
+  static const _genres = [
+    ('Pop', Pallete.gradient2),
+    ('Hip-Hop', Pallete.gradient1),
+    ('Rock', Pallete.gradient3),
+    ('R&B', Pallete.gradient2),
+    ('Electronic', Pallete.gradient1),
+    ('Chill', Pallete.gradient3),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(CupertinoIcons.search, size: 56, color: Pallete.subtitleText),
-            const SizedBox(height: 16),
-            const Text(
-              'Search for songs or artists',
-              style: TextStyle(fontSize: 16, color: Pallete.subtitleText),
-              textAlign: TextAlign.center,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Browse all', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _genres.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.8,
             ),
-          ],
-        ),
+            itemBuilder: (context, index) {
+              final (label, color) = _genres[index];
+              return Material(
+                color: color.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => onSelectGenre(label),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        label,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

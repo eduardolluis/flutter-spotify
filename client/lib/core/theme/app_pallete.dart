@@ -7,10 +7,10 @@ class Pallete {
   static const inactiveBottomBarItemColor = Color(0xffababab);
 
   static const Color backgroundColor = Color.fromRGBO(18, 18, 18, 1);
-  static const Color gradient1 = Color.fromRGBO(187, 63, 221, 1);
-  static const Color gradient2 = Color.fromRGBO(251, 109, 169, 1);
-  static const Color gradient3 = Color.fromRGBO(255, 159, 124, 1);
-  static const Color borderColor = Color.fromRGBO(52, 51, 67, 1);
+  static const Color gradient1 = Color.fromRGBO(47, 98, 199, 1); // azul profundo (blobs de fondo)
+  static const Color gradient2 = Color.fromRGBO(111, 168, 232, 1); // azul acento del icono (activos, favoritos, focus)
+  static const Color gradient3 = Color.fromRGBO(154, 200, 227, 1); // azul claro (blobs de fondo)
+  static const Color borderColor = Color.fromRGBO(38, 46, 58, 1); // gris con tinte azul
   static const Color whiteColor = Colors.white;
   static const Color greyColor = Colors.grey;
   static const Color errorColor = Colors.redAccent;

@@ -88,7 +88,7 @@ flutter:
     - .env
 
 flutter_launcher_icons:
-  image_path: "assets/images/icon.jpg"
+  image_path: "assets/images/melodix_logo.png"
   android: true
   ios: true
   # An image asset can refer to one or more resolution-specific "variants", see

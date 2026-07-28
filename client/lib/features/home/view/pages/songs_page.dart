@@ -17,6 +17,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SongsPage extends ConsumerWidget {
   const SongsPage({super.key});
 
+  static String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recentlyPlayedSongs = ref.watch(homeViewModelProvider.notifier).getRecentlyPlayedSongs();
@@ -39,7 +46,6 @@ class SongsPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 50),
-          // Header de Perfil
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GestureDetector(
@@ -65,9 +71,23 @@ class SongsPage extends ConsumerWidget {
                         : null,
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Hello, ${user?.name.split(' ').first ?? ''}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _greeting(),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.subtitleText,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      Text(
+                        user?.name.split(' ').first ?? '',
+                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -111,7 +131,14 @@ class SongsPage extends ConsumerWidget {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Pallete.cardColor.withValues(alpha: 0.6),
-                                      borderRadius: BorderRadius.circular(6),
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.25),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
                                     ),
                                     child: Row(
                                       children: [
@@ -120,8 +147,8 @@ class SongsPage extends ConsumerWidget {
                                           height: double.infinity,
                                           child: ClipRRect(
                                             borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(6),
-                                              bottomLeft: Radius.circular(6),
+                                              topLeft: Radius.circular(8),
+                                              bottomLeft: Radius.circular(8),
                                             ),
                                             child: CachedNetworkImage(
                                               imageUrl: song.thumbnail_url,

@@ -83,127 +83,239 @@ class ProfilePage extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Profile', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 32),
-              Center(
-                child: Column(
+              SizedBox(
+                height: 168,
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    GestureDetector(
-                      onTap: (isUploadingAvatar || isPickingAvatar)
-                          ? null
-                          : () => _pickAndUploadAvatar(context, ref),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 48,
-                            backgroundColor: Pallete.cardColor,
-                            backgroundImage:
-                                (user?.avatar_url != null && user!.avatar_url!.isNotEmpty)
-                                ? CachedNetworkImageProvider(user.avatar_url!)
-                                : null,
-                            child: (user?.avatar_url == null || user!.avatar_url!.isEmpty)
-                                ? const Icon(
-                                    CupertinoIcons.person_fill,
-                                    size: 48,
-                                    color: Pallete.subtitleText,
-                                  )
-                                : null,
-                          ),
-                          if (isUploadingAvatar)
-                            const CircularProgressIndicator(color: Pallete.whiteColor)
-                          else
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: Pallete.gradient2,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.camera_fill,
-                                  size: 16,
-                                  color: Pallete.whiteColor,
-                                ),
-                              ),
-                            ),
-                        ],
+                    Container(
+                      height: 108,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Pallete.gradient1.withValues(alpha: 0.9),
+                            Pallete.backgroundColor,
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      user?.name ?? '',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                    Positioned(
+                      left: 24,
+                      top: 16,
+                      child: Text(
+                        'Profile',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Pallete.whiteColor.withValues(alpha: 0.85),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user?.email ?? '',
-                      style: const TextStyle(fontSize: 14, color: Pallete.subtitleText),
-                    ),
-                    if (user != null) ...[
-                      const SizedBox(height: 16),
-                      ref
-                          .watch(getArtistProfileProvider(user.id))
-                          .when(
-                            data: (profile) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ProfileStatColumn(
-                                    count: profile.followers_count,
-                                    label: 'Followers',
-                                  ),
-                                  const SizedBox(width: 32),
-                                  ProfileStatColumn(
-                                    count: profile.following_count,
-                                    label: 'Following',
-                                  ),
-                                ],
-                              );
-                            },
-                            error: (error, stackTrace) => const SizedBox.shrink(),
-                            loading: () => const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                    Positioned(
+                      left: 24,
+                      top: 56,
+                      child: GestureDetector(
+                        onTap: (isUploadingAvatar || isPickingAvatar)
+                            ? null
+                            : () => _pickAndUploadAvatar(context, ref),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Pallete.backgroundColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: CircleAvatar(
+                                radius: 44,
+                                backgroundColor: Pallete.cardColor,
+                                backgroundImage:
+                                    (user?.avatar_url != null && user!.avatar_url!.isNotEmpty)
+                                    ? CachedNetworkImageProvider(user.avatar_url!)
+                                    : null,
+                                child: (user?.avatar_url == null || user!.avatar_url!.isEmpty)
+                                    ? const Icon(
+                                        CupertinoIcons.person_fill,
+                                        size: 40,
+                                        color: Pallete.subtitleText,
+                                      )
+                                    : null,
+                              ),
                             ),
-                          ),
-                    ],
+                            if (isUploadingAvatar)
+                              const CircularProgressIndicator(color: Pallete.whiteColor)
+                            else
+                              Positioned(
+                                bottom: 2,
+                                right: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Pallete.gradient2,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    CupertinoIcons.camera_fill,
+                                    size: 14,
+                                    color: Pallete.backgroundColor,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
-              const Divider(color: Pallete.borderColor),
-              const SizedBox(height: 8),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(CupertinoIcons.music_note_list, color: Pallete.whiteColor),
-                title: const Text('My songs', style: TextStyle(fontWeight: FontWeight.w600)),
-                trailing: const Icon(CupertinoIcons.chevron_right, size: 18),
-                onTap: () {
-                  Navigator.of(
-                    context,
-                  ).push(MaterialPageRoute(builder: (context) => const MySongsPage()));
-                },
-              ),
-              const Divider(color: Pallete.borderColor),
-              const SizedBox(height: 8),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(CupertinoIcons.square_arrow_right, color: Pallete.errorColor),
-                title: const Text(
-                  'Log out',
-                  style: TextStyle(color: Pallete.errorColor, fontWeight: FontWeight.w600),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.name ?? '',
+                      style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      user?.email ?? '',
+                      style: const TextStyle(fontSize: 13, color: Pallete.subtitleText),
+                    ),
+                    const SizedBox(height: 20),
+                    if (user != null)
+                      ref
+                          .watch(getArtistProfileProvider(user.id))
+                          .when(
+                            data: (profile) => Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              decoration: BoxDecoration(
+                                color: Pallete.cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: ProfileStatColumn(
+                                      count: profile.followers_count,
+                                      label: 'Followers',
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 28,
+                                    color: Pallete.borderColor,
+                                  ),
+                                  Expanded(
+                                    child: ProfileStatColumn(
+                                      count: profile.following_count,
+                                      label: 'Following',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            error: (error, stackTrace) => const SizedBox.shrink(),
+                            loading: () => const SizedBox(
+                              height: 20,
+                              child: Center(
+                                child: SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 28),
+                    _ProfileActionTile(
+                      icon: CupertinoIcons.music_note_list,
+                      iconColor: Pallete.gradient2,
+                      label: 'My songs',
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (context) => const MySongsPage()));
+                      },
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _confirmLogout(context, ref),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Pallete.errorColor,
+                          side: const BorderSide(color: Pallete.errorColor),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: const StadiumBorder(),
+                        ),
+                        icon: const Icon(CupertinoIcons.square_arrow_right, size: 18),
+                        label: const Text('Log out', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ],
                 ),
-                onTap: () => _confirmLogout(context, ref),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileActionTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ProfileActionTile({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Pallete.cardColor,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 18, color: iconColor),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const Icon(CupertinoIcons.chevron_right, size: 16, color: Pallete.subtitleText),
             ],
           ),
         ),

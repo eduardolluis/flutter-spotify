@@ -1,4 +1,4 @@
-import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/features/auth/view/theme/auth_palette.dart';
 import 'package:flutter/material.dart';
 
 class AuthGradientButton extends StatelessWidget {
@@ -10,17 +10,18 @@ class AuthGradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 52,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Pallete.whiteColor,
-          foregroundColor: Colors.black,
+          backgroundColor: AuthPalette.accent,
+          foregroundColor: AuthPalette.ink,
           elevation: 0,
-          padding: EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
         child: Text(
-          label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.2),
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1.2),
         ),
       ),
     );

@@ -1,14 +1,16 @@
-import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
-import 'package:melodix/core/widgets/custom_field.dart';
 import 'package:melodix/core/widgets/loader.dart';
 import 'package:melodix/features/auth/view/pages/signup_page.dart';
+import 'package:melodix/features/auth/view/theme/auth_palette.dart';
+import 'package:melodix/features/auth/view/widgets/auth_brand_mark.dart';
 import 'package:melodix/features/auth/view/widgets/auth_gradient_button.dart';
+import 'package:melodix/features/auth/view/widgets/auth_text_field.dart';
 import 'package:melodix/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:melodix/features/home/view/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -54,68 +56,55 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/welcome-background.jpeg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: isLoading
-            ? const Loader()
-            : Center(
+      backgroundColor: AuthPalette.ink,
+      body: isLoading
+          ? const Loader()
+          : SafeArea(
+              child: Center(
                 child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
                     child: Form(
                       key: formKey,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              const Text(
-                                "Login",
-                                style: TextStyle(
-                                  fontSize: 38,
-                                  fontWeight: FontWeight.w800,
-                                  color: Pallete.whiteColor,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Pallete.gradient2,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
+                          const AuthBrandMark(),
+                          const SizedBox(height: 48),
+
                           Text(
-                            "Welcome back, your songs are waiting for you.",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Pallete.subtitleText,
-                              fontWeight: FontWeight.w400,
+                            'Log in',
+                            style: GoogleFonts.fraunces(
+                              fontSize: 40,
+                              fontWeight: FontWeight.w600,
+                              height: 1.05,
+                              color: AuthPalette.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 36),
+                          const SizedBox(height: 10),
+                          Text(
+                            'ACCESS YOUR LIBRARY',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 12,
+                              letterSpacing: 1.6,
+                              color: AuthPalette.textMuted,
+                            ),
+                          ),
+                          const SizedBox(height: 40),
 
-                          CustomField(hintText: "Email", controller: _emailController),
-                          const SizedBox(height: 18),
-
-                          CustomField(
-                            hintText: "Password",
+                          AuthTextField(
+                            label: 'Email',
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 28),
+                          AuthTextField(
+                            label: 'Password',
                             controller: _passwordController,
                             isObscureText: true,
                           ),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 36),
 
                           AuthGradientButton(
                             label: "Continue",
@@ -132,47 +121,53 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               }
                             },
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 32),
 
                           Row(
                             children: [
-                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.24))),
+                              const Expanded(child: Divider(color: AuthPalette.hairline, height: 1)),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 14),
                                 child: Text(
-                                  "or",
-                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                                  'OR',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 11,
+                                    letterSpacing: 1.4,
+                                    color: AuthPalette.textFaint,
+                                  ),
                                 ),
                               ),
-                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.24))),
+                              const Expanded(child: Divider(color: AuthPalette.hairline, height: 1)),
                             ],
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 28),
 
                           SizedBox(
                             width: double.infinity,
+                            height: 52,
                             child: OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.24)),
-                                padding: const EdgeInsets.symmetric(vertical: 15),
-                                shape: const StadiumBorder(),
+                                foregroundColor: AuthPalette.textPrimary,
+                                side: const BorderSide(color: AuthPalette.hairlineStrong),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
                               ),
                               onPressed: () {
                                 ref.read(authViewModelProvider.notifier).loginWithGoogle();
                               },
                               icon: SvgPicture.asset(
                                 'assets/images/google-logo.svg',
-                                height: 22,
-                                width: 22,
+                                height: 18,
+                                width: 18,
                               ),
-                              label: const Text(
+                              label: Text(
                                 "Continue with Google",
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 40),
 
                           Center(
                             child: GestureDetector(
@@ -185,13 +180,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               child: RichText(
                                 text: TextSpan(
                                   text: "Don't have an account? ",
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                  children: const [
+                                  style: GoogleFonts.inter(fontSize: 14, color: AuthPalette.textMuted),
+                                  children: [
                                     TextSpan(
-                                      text: "Sign Up",
-                                      style: TextStyle(
-                                        color: Pallete.gradient2,
-                                        fontWeight: FontWeight.bold,
+                                      text: "Sign up",
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: AuthPalette.accent,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ],
@@ -205,7 +201,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
               ),
-      ),
+            ),
     );
   }
 }

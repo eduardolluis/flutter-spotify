@@ -4,6 +4,7 @@ import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,8 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
-  /// Honest feedback for features that do not exist yet (connect
-  /// device, playlists), instead of leaving the icon unresponsive.
   static void _comingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$feature: coming soon 👀'), duration: const Duration(seconds: 1)),
@@ -52,15 +51,37 @@ class MusicPlayer extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [hexToColor(currentSong.hex_code), const Color(0xff121212)],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRect(
+          child: Transform.scale(
+            scale: 1.4,
+            child: CachedNetworkImage(
+              imageUrl: currentSong.thumbnail_url,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
-      ),
-      child: GestureDetector(
+        ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                hexToColor(currentSong.hex_code).withValues(alpha: 0.55),
+                const Color(0xff121212).withValues(alpha: 0.92),
+              ],
+            ),
+          ),
+        ),
+        GestureDetector(
         onTap: () {
           Navigator.pop(context);
         },
@@ -311,6 +332,7 @@ class MusicPlayer extends ConsumerWidget {
           ),
         ),
       ),
+      ],
     );
   }
 }
