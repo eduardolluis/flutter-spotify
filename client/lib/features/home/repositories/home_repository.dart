@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:melodix/core/constants/server_constants.dart';
 import 'package:melodix/core/failure/failure.dart';
 import 'package:melodix/features/home/models/artist_profile_model.dart';
+import 'package:melodix/features/home/models/follow_user_model.dart';
 import 'package:melodix/features/home/models/song_model.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
@@ -22,12 +23,18 @@ class HomeRepository {
     required String artist,
     required String songName,
     required String hexCode,
+    required String genre,
     required String token,
   }) async {
     final request =
         http.MultipartRequest('POST', Uri.parse('${ServerConstants.serverURL}/song/upload'))
           ..headers['x-auth-token'] = token
-          ..fields.addAll({'artist': artist, 'song_name': songName, 'hex_code': hexCode})
+          ..fields.addAll({
+            'artist': artist,
+            'song_name': songName,
+            'hex_code': hexCode,
+            'genre': genre,
+          })
           ..files.addAll([
             await http.MultipartFile.fromPath('song', song.path),
             await http.MultipartFile.fromPath('thumbnail', thumbnail.path),
@@ -176,6 +183,58 @@ class HomeRepository {
       }
 
       return Right(resBodyMap);
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, List<FollowUserModel>>> getFollowers({
+    required String token,
+    required String artistId,
+  }) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ServerConstants.serverURL}/user/$artistId/followers'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      if (res.statusCode != 200) {
+        try {
+          final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'] ?? 'Error loading followers'));
+        } catch (_) {
+          return Left(AppFailure('Server error: ${res.statusCode}'));
+        }
+      }
+
+      final resBodyList = jsonDecode(res.body) as List;
+      return Right(resBodyList.map((e) => FollowUserModel.fromMap(e)).toList());
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, List<FollowUserModel>>> getFollowing({
+    required String token,
+    required String artistId,
+  }) async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ServerConstants.serverURL}/user/$artistId/following'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      if (res.statusCode != 200) {
+        try {
+          final errorMap = jsonDecode(res.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'] ?? 'Error loading following'));
+        } catch (_) {
+          return Left(AppFailure('Server error: ${res.statusCode}'));
+        }
+      }
+
+      final resBodyList = jsonDecode(res.body) as List;
+      return Right(resBodyList.map((e) => FollowUserModel.fromMap(e)).toList());
     } catch (e) {
       return Left(AppFailure(e.toString()));
     }

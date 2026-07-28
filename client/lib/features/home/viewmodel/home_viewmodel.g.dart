@@ -164,6 +164,160 @@ final class GetArtistProfileFamily extends $Family
   String toString() => r'getArtistProfileProvider';
 }
 
+@ProviderFor(getFollowers)
+final getFollowersProvider = GetFollowersFamily._();
+
+final class GetFollowersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<FollowUserModel>>,
+          List<FollowUserModel>,
+          FutureOr<List<FollowUserModel>>
+        >
+    with
+        $FutureModifier<List<FollowUserModel>>,
+        $FutureProvider<List<FollowUserModel>> {
+  GetFollowersProvider._({
+    required GetFollowersFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getFollowersProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getFollowersHash();
+
+  @override
+  String toString() {
+    return r'getFollowersProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<FollowUserModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<FollowUserModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getFollowers(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetFollowersProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getFollowersHash() => r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
+
+final class GetFollowersFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<FollowUserModel>>, String> {
+  GetFollowersFamily._()
+    : super(
+        retry: null,
+        name: r'getFollowersProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetFollowersProvider call(String artistId) =>
+      GetFollowersProvider._(argument: artistId, from: this);
+
+  @override
+  String toString() => r'getFollowersProvider';
+}
+
+@ProviderFor(getFollowing)
+final getFollowingProvider = GetFollowingFamily._();
+
+final class GetFollowingProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<FollowUserModel>>,
+          List<FollowUserModel>,
+          FutureOr<List<FollowUserModel>>
+        >
+    with
+        $FutureModifier<List<FollowUserModel>>,
+        $FutureProvider<List<FollowUserModel>> {
+  GetFollowingProvider._({
+    required GetFollowingFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'getFollowingProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$getFollowingHash();
+
+  @override
+  String toString() {
+    return r'getFollowingProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<FollowUserModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<FollowUserModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return getFollowing(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetFollowingProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$getFollowingHash() => r'b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1';
+
+final class GetFollowingFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<FollowUserModel>>, String> {
+  GetFollowingFamily._()
+    : super(
+        retry: null,
+        name: r'getFollowingProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GetFollowingProvider call(String artistId) =>
+      GetFollowingProvider._(argument: artistId, from: this);
+
+  @override
+  String toString() => r'getFollowingProvider';
+}
+
 @ProviderFor(HomeViewModel)
 final homeViewModelProvider = HomeViewModelProvider._();
 

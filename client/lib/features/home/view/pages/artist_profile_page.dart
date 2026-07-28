@@ -4,6 +4,7 @@ import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/core/widgets/loader.dart';
+import 'package:melodix/features/home/view/pages/follow_list_page.dart';
 import 'package:melodix/features/home/view/widgets/music_player.dart';
 import 'package:melodix/features/home/view/widgets/profile_stat_column.dart';
 import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
@@ -136,16 +137,44 @@ class _ArtistProfilePageState extends ConsumerState<ArtistProfilePage> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: ProfileStatColumn(
-                                    count: artist.followers_count,
-                                    label: 'Followers',
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowListPage(
+                                          artistId: widget.artistId,
+                                          artistName: artist.name.isNotEmpty
+                                              ? artist.name
+                                              : widget.artistName,
+                                          initialTab: FollowListTab.followers,
+                                        ),
+                                      ),
+                                    ),
+                                    child: ProfileStatColumn(
+                                      count: artist.followers_count,
+                                      label: 'Followers',
+                                    ),
                                   ),
                                 ),
                                 Container(width: 1, height: 28, color: Pallete.borderColor),
                                 Expanded(
-                                  child: ProfileStatColumn(
-                                    count: artist.following_count,
-                                    label: 'Following',
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowListPage(
+                                          artistId: widget.artistId,
+                                          artistName: artist.name.isNotEmpty
+                                              ? artist.name
+                                              : widget.artistName,
+                                          initialTab: FollowListTab.following,
+                                        ),
+                                      ),
+                                    ),
+                                    child: ProfileStatColumn(
+                                      count: artist.following_count,
+                                      label: 'Following',
+                                    ),
                                   ),
                                 ),
                               ],

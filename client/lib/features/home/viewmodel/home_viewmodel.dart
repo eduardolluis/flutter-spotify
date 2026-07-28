@@ -7,6 +7,7 @@ import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/features/home/models/artist_profile_model.dart';
 import 'package:melodix/features/home/models/fav_song_model.dart';
+import 'package:melodix/features/home/models/follow_user_model.dart';
 import 'package:melodix/features/home/models/song_model.dart';
 import 'package:melodix/features/home/repositories/home_local_repository.dart';
 import 'package:melodix/features/home/repositories/home_repository.dart';
@@ -55,6 +56,30 @@ Future<ArtistProfileModel> getArtistProfile(Ref ref, String artistId) async {
 }
 
 @riverpod
+Future<List<FollowUserModel>> getFollowers(Ref ref, String artistId) async {
+  final token = ref.watch(currentUserProvider.select((user) => user!.token));
+
+  final res = await ref.watch(homeRepositoryProvider).getFollowers(token: token, artistId: artistId);
+
+  return switch (res) {
+    Left(value: final l) => throw l.message,
+    Right(value: final r) => r,
+  };
+}
+
+@riverpod
+Future<List<FollowUserModel>> getFollowing(Ref ref, String artistId) async {
+  final token = ref.watch(currentUserProvider.select((user) => user!.token));
+
+  final res = await ref.watch(homeRepositoryProvider).getFollowing(token: token, artistId: artistId);
+
+  return switch (res) {
+    Left(value: final l) => throw l.message,
+    Right(value: final r) => r,
+  };
+}
+
+@riverpod
 class HomeViewModel extends _$HomeViewModel {
   late final HomeRepository _homeRepository;
   late final HomeLocalRepository _homeLocalRepository;
@@ -71,6 +96,7 @@ class HomeViewModel extends _$HomeViewModel {
     required String songName,
     required String artist,
     required Color color,
+    required String genre,
   }) async {
     state = const AsyncValue.loading();
 
@@ -81,6 +107,7 @@ class HomeViewModel extends _$HomeViewModel {
         artist: artist,
         songName: songName,
         hexCode: rgbToHex(color),
+        genre: genre,
         token: ref.read(currentUserProvider)!.token,
       ),
     );
@@ -157,6 +184,10 @@ class HomeViewModel extends _$HomeViewModel {
 
     if (res.isRight()) {
       ref.invalidate(getArtistProfileProvider(artistId));
+      ref.invalidate(getFollowersProvider(artistId));
+      ref.invalidate(getFollowingProvider(artistId));
+      ref.invalidate(getFollowersProvider(user.id));
+      ref.invalidate(getFollowingProvider(user.id));
     }
 
     return res;

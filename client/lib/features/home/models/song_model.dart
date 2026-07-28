@@ -9,6 +9,7 @@ class SongModel {
   final String thumbnail_url;
   final String song_url;
   final String hex_code;
+  final String? genre;
   final String? owner_id;
   final String? artist_avatar_url;
   SongModel({
@@ -18,6 +19,7 @@ class SongModel {
     required this.thumbnail_url,
     required this.song_url,
     required this.hex_code,
+    this.genre,
     this.owner_id,
     this.artist_avatar_url,
   });
@@ -29,6 +31,7 @@ class SongModel {
     String? thumbnail_url,
     String? song_url,
     String? hex_code,
+    String? genre,
     String? owner_id,
     String? artist_avatar_url,
   }) {
@@ -39,6 +42,7 @@ class SongModel {
       thumbnail_url: thumbnail_url ?? this.thumbnail_url,
       song_url: song_url ?? this.song_url,
       hex_code: hex_code ?? this.hex_code,
+      genre: genre ?? this.genre,
       owner_id: owner_id ?? this.owner_id,
       artist_avatar_url: artist_avatar_url ?? this.artist_avatar_url,
     );
@@ -52,6 +56,7 @@ class SongModel {
       'thumbnail_url': thumbnail_url,
       'song_url': song_url,
       'hex_code': hex_code,
+      'genre': genre,
       'owner_id': owner_id,
       'artist_avatar_url': artist_avatar_url,
     };
@@ -65,6 +70,7 @@ class SongModel {
       thumbnail_url: map['thumbnail_url'] ?? "",
       song_url: map['song_url'] ?? "",
       hex_code: map['hex_code'] ?? "",
+      genre: map['genre'],
       owner_id: map['owner_id'],
       artist_avatar_url: map['artist_avatar_url'],
     );
@@ -77,7 +83,7 @@ class SongModel {
 
   @override
   String toString() {
-    return 'SongModel(id: $id, song_name: $song_name, artist: $artist, thumbnail_url: $thumbnail_url, song_url: $song_url, hex_code: $hex_code, owner_id: $owner_id, artist_avatar_url: $artist_avatar_url)';
+    return 'SongModel(id: $id, song_name: $song_name, artist: $artist, thumbnail_url: $thumbnail_url, song_url: $song_url, hex_code: $hex_code, genre: $genre, owner_id: $owner_id, artist_avatar_url: $artist_avatar_url)';
   }
 
   @override
@@ -90,6 +96,7 @@ class SongModel {
         other.thumbnail_url == thumbnail_url &&
         other.song_url == song_url &&
         other.hex_code == hex_code &&
+        other.genre == genre &&
         other.owner_id == owner_id &&
         other.artist_avatar_url == artist_avatar_url;
   }
@@ -102,6 +109,7 @@ class SongModel {
         thumbnail_url.hashCode ^
         song_url.hashCode ^
         hex_code.hashCode ^
+        genre.hashCode ^
         owner_id.hashCode ^
         artist_avatar_url.hashCode;
   }

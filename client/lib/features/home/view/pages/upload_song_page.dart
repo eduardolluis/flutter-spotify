@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:melodix/core/constants/genres.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/core/widgets/custom_field.dart';
@@ -25,6 +26,7 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
   Color selectedColor = Pallete.cardColor;
   File? selectedImage;
   File? selectedAudio;
+  Genre? selectedGenre;
   final formKey = GlobalKey<FormState>();
 
   void selectAudio() async {
@@ -108,7 +110,8 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                   onPressed: () async {
                     if (formKey.currentState!.validate() &&
                         selectedAudio != null &&
-                        selectedImage != null) {
+                        selectedImage != null &&
+                        selectedGenre != null) {
                       ref
                           .read(homeViewModelProvider.notifier)
                           .uploadSong(
@@ -117,7 +120,10 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                             songName: songNameController.text.trim(),
                             artist: artistController.text.trim(),
                             color: selectedColor,
+                            genre: selectedGenre!.label,
                           );
+                    } else if (selectedGenre == null) {
+                      showSnackBar(context, "Pick a genre for your song");
                     } else {
                       showSnackBar(context, "Missing Fields");
                     }
@@ -218,7 +224,67 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                       CustomField(hintText: "Artist", controller: artistController),
                       const SizedBox(height: 20),
                       CustomField(hintText: "Song Name", controller: songNameController),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Genre",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "So people can find your song from Search",
+                          style: TextStyle(fontSize: 12, color: Pallete.subtitleText),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: kGenres.map((genre) {
+                          final isSelected = selectedGenre?.label == genre.label;
+                          return GestureDetector(
+                            onTap: () => setState(() => selectedGenre = genre),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? genre.color.withValues(alpha: 0.24)
+                                    : Pallete.cardColor,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isSelected ? genre.color : Pallete.borderColor,
+                                  width: isSelected ? 1.4 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    genre.icon,
+                                    size: 16,
+                                    color: isSelected ? genre.color : Pallete.subtitleText,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    genre.label,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected ? Pallete.whiteColor : Pallete.subtitleText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
                       ColorPicker(
                         pickersEnabled: const {ColorPickerType.wheel: true},
                         color: selectedColor,
