@@ -122,6 +122,35 @@ class AuthViewModel extends _$AuthViewModel {
     state = const AsyncValue.data(null);
   }
 
+  Future<Either<AppFailure, UserModel>> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    final currentToken = _authLocalRepository.getToken();
+    if (currentToken == null) {
+      return Left(AppFailure('You are not logged in.'));
+    }
+
+    state = const AsyncValue.loading();
+    final res = await _authRemoteRepository.updateProfile(
+      name: name,
+      email: email,
+      token: currentToken,
+    );
+
+    if (!ref.mounted) return res;
+
+    switch (res) {
+      case Left(value: final failure):
+        state = AsyncValue.error(failure.message, StackTrace.current);
+        return Left(failure);
+      case Right(value: final user):
+        _currentUserNotifier.addUser(user);
+        state = AsyncValue.data(user);
+        return Right(user);
+    }
+  }
+
   Future<Either<AppFailure, UserModel>> updateAvatar(File avatar) async {
     final currentToken = _authLocalRepository.getToken();
     if (currentToken == null) {

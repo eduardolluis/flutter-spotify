@@ -117,6 +117,29 @@ class AuthRemoteRepository {
     }
   }
 
+  Future<Either<AppFailure, UserModel>> updateProfile({
+    required String name,
+    required String email,
+    required String token,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ServerConstants.serverURL}/user/'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+        body: jsonEncode({'name': name, 'email': email}),
+      );
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        return Left(AppFailure(resBodyMap['detail'].toString()));
+      }
+      return Right(UserModel.fromMap(resBodyMap).copyWith(token: token));
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
   Future<Either<AppFailure, UserModel>> uploadAvatar({
     required File avatar,
     required String token,
