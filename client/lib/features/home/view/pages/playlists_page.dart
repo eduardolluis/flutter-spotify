@@ -2,60 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/providers/playlist_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
-import 'package:melodix/core/utils.dart';
-import 'package:melodix/features/home/repositories/home_repository.dart';
 import 'package:melodix/features/home/view/pages/playlist_detail_page.dart';
+import 'package:melodix/features/home/view/widgets/create_playlist_dialog.dart';
 
 class PlaylistsPage extends ConsumerWidget {
   const PlaylistsPage({super.key});
-
-  Future<void> _createPlaylist(BuildContext context, WidgetRef ref) async {
-    final controller = TextEditingController();
-
-    final name = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Pallete.cardColor,
-        title: const Text('New playlist'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          style: const TextStyle(color: Pallete.whiteColor),
-          decoration: const InputDecoration(hintText: 'Playlist name'),
-          onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Create', style: TextStyle(color: Pallete.gradient2)),
-          ),
-        ],
-      ),
-    );
-
-    if (name == null || name.isEmpty) return;
-    if (!context.mounted) return;
-
-    final token = ref.read(currentUserProvider)!.token;
-    final res = await ref.read(homeRepositoryProvider).createPlaylist(token: token, name: name);
-    if (!context.mounted) return;
-
-    switch (res) {
-      case Left(value: final failure):
-        showSnackBar(context, failure.message);
-      case Right(value: final playlist):
-        ref.invalidate(playlistsProvider);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => PlaylistDetailPage(playlistId: playlist.id)),
-        );
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,7 +19,7 @@ class PlaylistsPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Pallete.gradient2,
         foregroundColor: Pallete.backgroundColor,
-        onPressed: () => _createPlaylist(context, ref),
+        onPressed: () => showCreatePlaylistDialog(context, ref),
         child: const Icon(CupertinoIcons.add),
       ),
       body: playlistsAsync.when(
