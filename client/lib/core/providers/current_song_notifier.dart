@@ -4,19 +4,46 @@ import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/features/home/models/song_model.dart';
 import 'package:melodix/features/home/repositories/home_local_repository.dart';
 import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'current_song_notifier.g.dart';
 
-final isPlayingProvider = StateProvider<bool>((ref) => false);
-final shuffleProvider = StateProvider<bool>((ref) => false);
-final repeatProvider = StateProvider<bool>((ref) => false);
+@riverpod
+class IsPlaying extends _$IsPlaying {
+  @override
+  bool build() => false;
+  void updateState(bool val) => state = val;
+}
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
-final librarySearchQueryProvider = StateProvider<String>((ref) => '');
+@riverpod
+class Shuffle extends _$Shuffle {
+  @override
+  bool build() => false;
+  void toggle() => state = !state;
+}
+
+@riverpod
+class Repeat extends _$Repeat {
+  @override
+  bool build() => false;
+  void toggle() => state = !state;
+}
+
+@riverpod
+class SearchQuery extends _$SearchQuery {
+  @override
+  String build() => '';
+  void updateQuery(String query) => state = query;
+}
+
+@riverpod
+class LibrarySearchQuery extends _$LibrarySearchQuery {
+  @override
+  String build() => '';
+  void updateQuery(String query) => state = query;
+}
 
 @riverpod
 class CurrentSongNotifier extends _$CurrentSongNotifier {
@@ -61,7 +88,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
         } else {
           audioPlayer!.seek(Duration.zero);
           audioPlayer!.pause();
-          ref.read(isPlayingProvider.notifier).state = false;
+          ref.read(isPlayingProvider.notifier).updateState(false);
           skipNext(auto: true);
         }
       }
@@ -70,7 +97,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     _homeLocalRepository.uploadLocalSong(ref.read(currentUserProvider)!.id, song);
 
     audioPlayer!.play();
-    ref.read(isPlayingProvider.notifier).state = true;
+    ref.read(isPlayingProvider.notifier).updateState(true);
     state = song;
   }
 
@@ -82,7 +109,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     } else {
       audioPlayer!.play();
     }
-    ref.read(isPlayingProvider.notifier).state = !playing;
+    ref.read(isPlayingProvider.notifier).updateState(!playing);
   }
 
   void seek(double val) {
@@ -93,11 +120,11 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   }
 
   void toggleShuffle() {
-    ref.read(shuffleProvider.notifier).state = !ref.read(shuffleProvider);
+    ref.read(shuffleProvider.notifier).toggle();
   }
 
   void toggleRepeat() {
-    ref.read(repeatProvider.notifier).state = !ref.read(repeatProvider);
+    ref.read(repeatProvider.notifier).toggle();
   }
 
   List<SongModel> _queue() {

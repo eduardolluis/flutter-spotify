@@ -39,8 +39,16 @@ class ArtistsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text('Artists', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          padding: EdgeInsets.only(bottom: 12),
+          child: Text(
+            'Artists',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+              height: 1.2,
+            ),
+          ),
         ),
         SizedBox(
           height: 150,
@@ -62,26 +70,36 @@ class ArtistsSection extends ConsumerWidget {
                         );
                       },
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 4.0, right: 5),
+                  padding: EdgeInsets.only(right: index == artists.length - 1 ? 0 : 18),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 45,
-                        backgroundColor: Pallete.borderColor,
-                        backgroundImage: info.avatarUrl != null
-                            ? CachedNetworkImageProvider(info.avatarUrl!)
-                            : null,
-                        child: info.avatarUrl == null
-                            ? const Icon(
-                                CupertinoIcons.person_fill,
-                                size: 40,
-                                color: Pallete.subtitleText,
-                              )
-                            : null,
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Pallete.borderColor.withValues(alpha: 0.7),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 42,
+                          backgroundColor: Pallete.borderColor,
+                          backgroundImage: info.avatarUrl != null
+                              ? CachedNetworkImageProvider(info.avatarUrl!)
+                              : null,
+                          child: info.avatarUrl == null
+                              ? const Icon(
+                                  CupertinoIcons.person_fill,
+                                  size: 38,
+                                  color: Pallete.subtitleText,
+                                )
+                              : null,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       SizedBox(
-                        width: 90,
+                        width: 88,
                         child: Text(
                           artist,
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),

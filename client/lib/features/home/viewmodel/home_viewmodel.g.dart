@@ -221,7 +221,7 @@ final class GetFollowersProvider
   }
 }
 
-String _$getFollowersHash() => r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
+String _$getFollowersHash() => r'9431e2941f6d427bf757764cb4fc08b0210b2f14';
 
 final class GetFollowersFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<FollowUserModel>>, String> {
@@ -298,7 +298,7 @@ final class GetFollowingProvider
   }
 }
 
-String _$getFollowingHash() => r'b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1';
+String _$getFollowingHash() => r'f1d1e470cea1290d300271e66961f95e5a8909ad';
 
 final class GetFollowingFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<FollowUserModel>>, String> {
@@ -342,7 +342,7 @@ final class HomeViewModelProvider
   HomeViewModel create() => HomeViewModel();
 }
 
-String _$homeViewModelHash() => r'03a232f75b3a3a0bbe5a17c672aec450e34c4279';
+String _$homeViewModelHash() => r'f58c53c45fd275f54c5ba78e8331ec5552bc56cb';
 
 abstract class _$HomeViewModel extends $AsyncNotifier<dynamic> {
   FutureOr<dynamic> build();

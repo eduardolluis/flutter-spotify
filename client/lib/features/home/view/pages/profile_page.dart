@@ -12,6 +12,7 @@ import 'package:melodix/features/home/view/pages/edit_profile_page.dart';
 import 'package:melodix/features/home/view/pages/follow_list_page.dart';
 import 'package:melodix/features/home/view/pages/library_page.dart';
 import 'package:melodix/features/home/view/pages/my_songs_page.dart';
+import 'package:melodix/features/home/view/pages/playlists_page.dart';
 import 'package:melodix/features/home/view/pages/settings_page.dart';
 import 'package:melodix/features/home/view/pages/upload_song_page.dart';
 import 'package:melodix/features/home/view/widgets/profile_action_tile.dart';
@@ -351,6 +352,19 @@ class ProfilePage extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const SettingsPage()),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1, color: Colors.white10),
+                      VinylTrackTile(
+                        index: '05',
+                        icon: CupertinoIcons.music_note_list,
+                        title: 'Playlists',
+                        subtitle: 'Your custom mixes',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const PlaylistsPage()),
                           );
                         },
                       ),
