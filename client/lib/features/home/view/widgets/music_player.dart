@@ -206,7 +206,7 @@ class MusicPlayer extends ConsumerWidget {
                               Row(
                                 children: [
                                   Text(
-                                    '${position?.inMinutes}:${(position?.inSeconds ?? 0) < 10 ? "0${position?.inSeconds}" : "${position?.inSeconds}"}',
+                                    _formatDuration(position),
                                     style: TextStyle(
                                       color: Pallete.subtitleText,
                                       fontSize: 13,
@@ -215,7 +215,7 @@ class MusicPlayer extends ConsumerWidget {
                                   ),
                                   Expanded(child: SizedBox()),
                                   Text(
-                                    '${duration?.inMinutes}:${(duration?.inSeconds ?? 0) < 10 ? "0${duration?.inSeconds}" : "${duration?.inSeconds}"}',
+                                    _formatDuration(duration),
                                     style: TextStyle(
                                       color: Pallete.subtitleText,
                                       fontSize: 13,
@@ -344,4 +344,11 @@ class MusicPlayer extends ConsumerWidget {
       ],
     );
   }
+}
+
+String _formatDuration(Duration? d) {
+  if (d == null) return '0:00';
+  final minutes = d.inMinutes;
+  final seconds = d.inSeconds.remainder(60);
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
