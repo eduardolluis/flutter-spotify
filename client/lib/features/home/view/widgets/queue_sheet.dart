@@ -160,7 +160,7 @@ class _QueueSheetState extends ConsumerState<_QueueSheet> {
                         final song = _upNext[index];
                         return Dismissible(
                           key: ValueKey(song.id),
-                          direction: DismissDirection.horizontal,
+                          direction: DismissDirection.startToEnd,
                           background: Container(
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -170,15 +170,7 @@ class _QueueSheetState extends ConsumerState<_QueueSheet> {
                             ),
                             child: const Icon(CupertinoIcons.delete, color: Colors.white),
                           ),
-                          secondaryBackground: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Pallete.errorColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(CupertinoIcons.delete, color: Colors.white),
-                          ),
+
                           onDismissed: (_) => _onRemove(song),
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
