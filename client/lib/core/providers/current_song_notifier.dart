@@ -169,7 +169,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   /// removes songs from the queue sheet.
   void setUpNextSongs(List<SongModel> newUpNext) {
     final current = state;
-    _songsQueue = [if (current != null) current, ...newUpNext];
+    _songsQueue = [?current, ...newUpNext];
   }
 
   void skipNext({bool auto = false}) {

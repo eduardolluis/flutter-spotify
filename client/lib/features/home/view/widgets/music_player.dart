@@ -14,12 +14,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
 
-  static void _comingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature: coming soon 👀'), duration: const Duration(seconds: 1)),
-    );
-  }
-
   /// the mini player (MusicSlab), so it can be reused from anywhere
   /// the user taps a song.
   static void open(BuildContext context) {
@@ -297,19 +291,6 @@ class MusicPlayer extends ConsumerWidget {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => _comingSoon(context, 'Connect device'),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Image.asset(
-                                'assets/images/connect-device.png',
-                                width: 22,
-                                height: 22,
-                                color: Pallete.whiteColor,
-                              ),
-                            ),
-                          ),
-                          const Expanded(child: SizedBox()),
-                          GestureDetector(
                             onTap: () => showAddToPlaylistSheet(context, ref, currentSong),
                             child: const Padding(
                               padding: EdgeInsets.all(10),
@@ -320,6 +301,8 @@ class MusicPlayer extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          const Expanded(child: SizedBox()),
+
                           GestureDetector(
                             onTap: () => showQueueSheet(context),
                             child: Padding(
