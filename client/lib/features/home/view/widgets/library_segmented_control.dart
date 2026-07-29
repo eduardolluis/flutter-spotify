@@ -61,19 +61,19 @@ class LibrarySegmentedControl extends StatelessWidget {
               ? Padding(
                   key: const ValueKey('add-playlist'),
                   padding: const EdgeInsets.only(left: 10),
-                  child: InkWell(
+                  child: Material(
+                    color: Pallete.gradient2,
                     borderRadius: BorderRadius.circular(12),
-                    onTap: onAddPlaylist,
-                    child: Container(
-                      height: 44,
-                      width: 44,
-                      decoration: BoxDecoration(
-                        color: Pallete.gradient2,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.add,
-                        color: Pallete.backgroundColor,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: onAddPlaylist,
+                      child: const SizedBox(
+                        height: 44,
+                        width: 44,
+                        child: Icon(
+                          CupertinoIcons.add,
+                          color: Pallete.backgroundColor,
+                        ),
                       ),
                     ),
                   ),

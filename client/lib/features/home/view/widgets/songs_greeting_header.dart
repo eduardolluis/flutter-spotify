@@ -5,6 +5,18 @@ import 'package:melodix/core/models/user_model.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/features/home/view/pages/profile_page.dart';
 
+class _ProfilePageRoute extends StatelessWidget {
+  const _ProfilePageRoute();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Pallete.backgroundColor,
+      body: ProfilePage(),
+    );
+  }
+}
+
 /// Avatar + time-of-day greeting shown at the top of the Home feed.
 /// Tapping it opens the Profile page.
 class SongsGreetingHeader extends StatelessWidget {
@@ -25,7 +37,7 @@ class SongsGreetingHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ProfilePage()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => const _ProfilePageRoute()));
         },
         child: Row(
           children: [
