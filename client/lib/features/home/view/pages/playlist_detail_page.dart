@@ -11,6 +11,7 @@ import 'package:melodix/core/utils.dart';
 import 'package:melodix/features/home/repositories/home_repository.dart';
 import 'package:melodix/features/home/view/pages/add_song_toplaylist_page.dart'; // <-- Importación corregida según tu estructura
 import 'package:melodix/features/home/view/widgets/music_player.dart';
+import 'package:melodix/features/home/view/widgets/music_slab.dart';
 
 class PlaylistDetailPage extends ConsumerWidget {
   final String playlistId;
@@ -75,6 +76,7 @@ class PlaylistDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playlistAsync = ref.watch(playlistDetailProvider(playlistId));
     final playlist = playlistAsync.asData?.value;
+    final hasCurrentSong = ref.watch(currentSongProvider) != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -87,6 +89,12 @@ class PlaylistDetailPage extends ConsumerWidget {
           ),
         ],
       ),
+      bottomNavigationBar: hasCurrentSong
+          ? const SafeArea(
+              top: false,
+              child: Padding(padding: EdgeInsets.fromLTRB(12, 0, 12, 8), child: MusicSlab()),
+            )
+          : null,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Pallete.gradient2,
         foregroundColor: Pallete.backgroundColor,
@@ -147,7 +155,7 @@ class PlaylistDetailPage extends ConsumerWidget {
               final song = songs[index];
               return ListTile(
                 onTap: () async {
-                  await ref.read(currentSongProvider.notifier).updateSong(song);
+                  await ref.read(currentSongProvider.notifier).updateSong(song, queue: songs);
                   if (context.mounted) MusicPlayer.open(context);
                 },
                 leading: CircleAvatar(

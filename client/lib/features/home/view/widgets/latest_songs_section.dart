@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:melodix/core/providers/current_song_notifier.dart';
@@ -6,6 +7,7 @@ import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/widgets/loader.dart';
 import 'package:melodix/features/home/view/pages/empty_song.dart';
 import 'package:melodix/features/home/view/pages/upload_song_page.dart';
+import 'package:melodix/features/home/view/widgets/add_to_playlist_sheet.dart';
 import 'package:melodix/features/home/view/widgets/artists.dart';
 import 'package:melodix/features/home/view/widgets/music_player.dart';
 import 'package:melodix/features/home/view/widgets/section_header.dart';
@@ -47,7 +49,9 @@ class LatestSongsSection extends ConsumerWidget {
                       final song = songs[index];
                       return GestureDetector(
                         onTap: () async {
-                          await ref.read(currentSongProvider.notifier).updateSong(song);
+                          await ref
+                              .read(currentSongProvider.notifier)
+                              .updateSong(song, queue: songs);
                           if (context.mounted) MusicPlayer.open(context);
                         },
                         child: Padding(
@@ -58,27 +62,50 @@ class LatestSongsSection extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 155,
-                                height: 155,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: CachedNetworkImageProvider(song.thumbnail_url),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Pallete.borderColor.withValues(alpha: 0.5),
-                                    width: 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.3),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                              Stack(
+                                children: [
+                                  Container(
+                                    width: 155,
+                                    height: 155,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: CachedNetworkImageProvider(song.thumbnail_url),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Pallete.borderColor.withValues(alpha: 0.5),
+                                        width: 1,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+                                    child: GestureDetector(
+                                      onTap: () => showAddToPlaylistSheet(context, ref, song),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(alpha: 0.55),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          CupertinoIcons.add,
+                                          size: 16,
+                                          color: Pallete.whiteColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 10),
                               SizedBox(

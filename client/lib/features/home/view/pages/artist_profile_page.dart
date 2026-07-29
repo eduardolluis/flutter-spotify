@@ -249,7 +249,9 @@ class _ArtistProfilePageState extends ConsumerState<ArtistProfilePage> {
                           return ListTile(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                             onTap: () async {
-                              await ref.read(currentSongProvider.notifier).updateSong(song);
+                              await ref
+                                  .read(currentSongProvider.notifier)
+                                  .updateSong(song, queue: artist.songs);
                               if (context.mounted) MusicPlayer.open(context);
                             },
                             leading: ClipRRect(

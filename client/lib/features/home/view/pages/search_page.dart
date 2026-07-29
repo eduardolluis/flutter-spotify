@@ -128,7 +128,7 @@ class SearchPage extends ConsumerWidget {
                                               onTap: () async {
                                                 await ref
                                                     .read(currentSongProvider.notifier)
-                                                    .updateSong(song);
+                                                    .updateSong(song, queue: filtered);
                                                 if (context.mounted) MusicPlayer.open(context);
                                               },
                                               leading: ClipRRect(

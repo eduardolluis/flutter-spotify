@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:melodix/core/providers/current_song_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/features/home/models/song_model.dart';
+import 'package:melodix/features/home/view/widgets/add_to_playlist_sheet.dart';
 import 'package:melodix/features/home/view/widgets/music_player.dart';
 import 'package:melodix/features/home/view/widgets/section_header.dart';
 
@@ -40,7 +42,9 @@ class RecentlyPlayedSection extends ConsumerWidget {
                     height: 64,
                     child: GestureDetector(
                       onTap: () async {
-                        await ref.read(currentSongProvider.notifier).updateSong(song);
+                        await ref
+                            .read(currentSongProvider.notifier)
+                            .updateSong(song, queue: songs);
                         if (context.mounted) MusicPlayer.open(context);
                       },
                       child: Container(
@@ -88,7 +92,18 @@ class RecentlyPlayedSection extends ConsumerWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () => showAddToPlaylistSheet(context, ref, song),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                child: Icon(
+                                  CupertinoIcons.add_circled,
+                                  size: 18,
+                                  color: Pallete.subtitleText,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
                           ],
                         ),
                       ),

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/features/home/models/song_model.dart';
 import 'package:melodix/features/home/repositories/home_local_repository.dart';
-import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,6 +49,13 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   late HomeLocalRepository _homeLocalRepository;
   AudioPlayer? audioPlayer;
 
+  /// The list of songs the currently playing song came from (a playlist,
+  /// the library, search results, an artist's songs, etc). skipNext /
+  /// skipPrevious walk through THIS list instead of always assuming
+  /// "all songs", so playback stays consistent with wherever the user
+  /// actually pressed play from.
+  List<SongModel> _songsQueue = [];
+
   @override
   SongModel? build() {
     _homeLocalRepository = ref.watch(homeLocalRepositoryProvider);
@@ -63,8 +69,19 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     return null;
   }
 
-  Future<void> updateSong(SongModel song) async {
+  /// Plays [song]. Pass the [queue] it belongs to (e.g. the playlist's
+  /// songs, the library list, search results...) so skip next/previous
+  /// know what "next" and "previous" mean in this context. If omitted,
+  /// falls back to whatever queue was already playing, or just [song]
+  /// on its own.
+  Future<void> updateSong(SongModel song, {List<SongModel>? queue}) async {
     if (audioPlayer == null) return;
+
+    if (queue != null && queue.isNotEmpty) {
+      _songsQueue = queue;
+    } else if (_songsQueue.indexWhere((s) => s.id == song.id) == -1) {
+      _songsQueue = [song];
+    }
 
     await audioPlayer!.stop();
 
@@ -128,7 +145,18 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   }
 
   List<SongModel> _queue() {
-    return ref.read(getAllSongsProvider).value ?? [];
+    return _songsQueue;
+  }
+
+  /// The list of songs currently queued up (whatever list the user played
+  /// from: a playlist, the library, search results, etc).
+  List<SongModel> get queue => List.unmodifiable(_songsQueue);
+
+  /// Index of the currently playing song within [queue], or -1 if the
+  /// current song isn't part of the tracked queue.
+  int get currentQueueIndex {
+    if (state == null) return -1;
+    return _songsQueue.indexWhere((s) => s.id == state!.id);
   }
 
   void skipNext({bool auto = false}) {

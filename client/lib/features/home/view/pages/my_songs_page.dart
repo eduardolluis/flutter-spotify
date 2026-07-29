@@ -74,7 +74,7 @@ class MySongsPage extends ConsumerWidget {
                   final song = mine[index];
                   return ListTile(
                     onTap: () async {
-                      await ref.read(currentSongProvider.notifier).updateSong(song);
+                      await ref.read(currentSongProvider.notifier).updateSong(song, queue: mine);
                       if (context.mounted) MusicPlayer.open(context);
                     },
                     leading: CircleAvatar(

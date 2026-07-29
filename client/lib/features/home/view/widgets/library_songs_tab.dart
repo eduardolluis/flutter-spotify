@@ -99,7 +99,9 @@ class LibrarySongsTab extends ConsumerWidget {
                         final song = filtered[index];
                         return ListTile(
                           onTap: () async {
-                            await ref.read(currentSongProvider.notifier).updateSong(song);
+                            await ref
+                                .read(currentSongProvider.notifier)
+                                .updateSong(song, queue: filtered);
                             if (context.mounted) MusicPlayer.open(context);
                           },
                           leading: CircleAvatar(
