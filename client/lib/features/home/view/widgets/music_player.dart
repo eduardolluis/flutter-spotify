@@ -4,6 +4,7 @@ import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
+import 'package:melodix/features/home/view/widgets/add_to_playlist_sheet.dart';
 import 'package:melodix/features/home/view/widgets/queue_sheet.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -308,6 +309,17 @@ class MusicPlayer extends ConsumerWidget {
                             ),
                           ),
                           const Expanded(child: SizedBox()),
+                          GestureDetector(
+                            onTap: () => showAddToPlaylistSheet(context, ref, currentSong),
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Icon(
+                                CupertinoIcons.add_circled,
+                                size: 24,
+                                color: Pallete.whiteColor,
+                              ),
+                            ),
+                          ),
                           GestureDetector(
                             onTap: () => showQueueSheet(context),
                             child: Padding(
