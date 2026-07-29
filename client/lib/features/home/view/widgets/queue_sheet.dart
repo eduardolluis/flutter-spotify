@@ -34,9 +34,6 @@ class _QueueSheetState extends ConsumerState<_QueueSheet> {
   @override
   void initState() {
     super.initState();
-    // Snapshot the up-next order when the sheet opens. Reorders/removals
-    // are applied here first (for a snappy UI) and then pushed back into
-    // the notifier so playback actually respects the new order.
     _upNext = List.of(ref.read(currentSongProvider.notifier).upNextSongs);
   }
 
@@ -163,11 +160,19 @@ class _QueueSheetState extends ConsumerState<_QueueSheet> {
                         final song = _upNext[index];
                         return Dismissible(
                           key: ValueKey(song.id),
-                          direction: DismissDirection.endToStart,
+                          direction: DismissDirection.horizontal,
                           background: Container(
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                              color: Pallete.errorColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(CupertinoIcons.delete, color: Colors.white),
+                          ),
+                          secondaryBackground: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            margin: const EdgeInsets.symmetric(vertical: 2),
                             decoration: BoxDecoration(
                               color: Pallete.errorColor,
                               borderRadius: BorderRadius.circular(12),
