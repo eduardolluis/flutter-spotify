@@ -57,7 +57,6 @@ class UserModel {
       id: map['id'] ?? "",
       token: map['token'] ?? "",
       avatar_url: map['avatar_url'],
-      // 🎯 CORREGIDO: Manejo ultra-seguro de nulos y casteo de mapas
       favorites: map['favorites'] == null
           ? []
           : List<FavSongModel>.from(

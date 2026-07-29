@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:melodix/core/providers/current_song_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
+import 'package:melodix/features/home/models/song_model.dart';
 
 /// Opens a bottom sheet showing the current playback queue: the song
-/// that's playing now and everything queued up to play next, in order.
-/// Tapping a song in the list jumps straight to it without touching
-/// the queue itself.
+/// that's playing now, and everything queued up to play next — which
+/// the user can reorder (drag the handle) or remove (swipe left).
 void showQueueSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
@@ -21,25 +21,56 @@ void showQueueSheet(BuildContext context) {
   );
 }
 
-class _QueueSheet extends ConsumerWidget {
+class _QueueSheet extends ConsumerStatefulWidget {
   const _QueueSheet();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentSong = ref.watch(currentSongProvider);
-    final songNotifier = ref.watch(currentSongProvider.notifier);
-    final queue = songNotifier.queue;
-    final currentIndex = songNotifier.currentQueueIndex;
+  ConsumerState<_QueueSheet> createState() => _QueueSheetState();
+}
 
-    // Everything after the current song, wrapping back to the start,
-    // excluding the current song itself — i.e. "what plays next".
-    final upNext = <MapEntry<int, dynamic>>[];
-    if (currentIndex != -1 && queue.length > 1) {
-      for (var i = 1; i < queue.length; i++) {
-        final idx = (currentIndex + i) % queue.length;
-        upNext.add(MapEntry(idx, queue[idx]));
-      }
-    }
+class _QueueSheetState extends ConsumerState<_QueueSheet> {
+  late List<SongModel> _upNext;
+
+  @override
+  void initState() {
+    super.initState();
+    // Snapshot the up-next order when the sheet opens. Reorders/removals
+    // are applied here first (for a snappy UI) and then pushed back into
+    // the notifier so playback actually respects the new order.
+    _upNext = List.of(ref.read(currentSongProvider.notifier).upNextSongs);
+  }
+
+  void _persist() {
+    ref.read(currentSongProvider.notifier).setUpNextSongs(_upNext);
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) newIndex -= 1;
+      final song = _upNext.removeAt(oldIndex);
+      _upNext.insert(newIndex, song);
+    });
+    _persist();
+  }
+
+  void _onRemove(SongModel song) {
+    setState(() {
+      _upNext.removeWhere((s) => s.id == song.id);
+    });
+    _persist();
+  }
+
+  Future<void> _playFromQueue(SongModel song) async {
+    await ref.read(currentSongProvider.notifier).updateSong(song);
+    if (!mounted) return;
+    setState(() {
+      _upNext = List.of(ref.read(currentSongProvider.notifier).upNextSongs);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentSong = ref.watch(currentSongProvider);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -70,98 +101,123 @@ class _QueueSheet extends ConsumerWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      if (currentSong != null) ...[
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6),
-                          child: Text(
-                            'NOW PLAYING',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Pallete.gradient2,
-                              letterSpacing: 0.5,
+                if (currentSong != null) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    child: Text(
+                      'NOW PLAYING',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Pallete.gradient2,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Pallete.backgroundColor,
+                      backgroundImage: CachedNetworkImageProvider(currentSong.thumbnail_url),
+                    ),
+                    title: Text(
+                      currentSong.song_name,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      currentSong.artist,
+                      style: const TextStyle(color: Pallete.subtitleText),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: const Icon(
+                      CupertinoIcons.speaker_2_fill,
+                      color: Pallete.gradient2,
+                      size: 18,
+                    ),
+                  ),
+                ],
+                if (_upNext.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.only(top: 12, bottom: 6),
+                    child: Text(
+                      'UP NEXT',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Pallete.subtitleText,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ReorderableListView.builder(
+                      scrollController: scrollController,
+                      buildDefaultDragHandles: false,
+                      itemCount: _upNext.length,
+                      onReorder: _onReorder,
+                      itemBuilder: (context, index) {
+                        final song = _upNext[index];
+                        return Dismissible(
+                          key: ValueKey(song.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Pallete.errorColor,
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            child: const Icon(CupertinoIcons.delete, color: Colors.white),
                           ),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            radius: 24,
-                            backgroundColor: Pallete.backgroundColor,
-                            backgroundImage: CachedNetworkImageProvider(
-                              currentSong.thumbnail_url,
-                            ),
-                          ),
-                          title: Text(
-                            currentSong.song_name,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            currentSong.artist,
-                            style: const TextStyle(color: Pallete.subtitleText),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: const Icon(
-                            CupertinoIcons.speaker_2_fill,
-                            color: Pallete.gradient2,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                      if (upNext.isNotEmpty) ...[
-                        const Padding(
-                          padding: EdgeInsets.only(top: 12, bottom: 6),
-                          child: Text(
-                            'UP NEXT',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Pallete.subtitleText,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                        for (final entry in upNext)
-                          ListTile(
+                          onDismissed: (_) => _onRemove(song),
+                          child: ListTile(
                             contentPadding: EdgeInsets.zero,
                             leading: CircleAvatar(
                               radius: 22,
                               backgroundColor: Pallete.backgroundColor,
-                              backgroundImage: CachedNetworkImageProvider(
-                                entry.value.thumbnail_url,
-                              ),
+                              backgroundImage: CachedNetworkImageProvider(song.thumbnail_url),
                             ),
                             title: Text(
-                              entry.value.song_name,
+                              song.song_name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             subtitle: Text(
-                              entry.value.artist,
+                              song.artist,
                               style: const TextStyle(color: Pallete.subtitleText),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            onTap: () => songNotifier.updateSong(entry.value),
+                            onTap: () => _playFromQueue(song),
+                            trailing: ReorderableDragStartListener(
+                              index: index,
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 4),
+                                child: Icon(
+                                  CupertinoIcons.line_horizontal_3,
+                                  color: Pallete.subtitleText,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
                           ),
-                      ] else if (currentSong != null)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            'Nothing else queued up yet.',
-                            style: TextStyle(color: Pallete.subtitleText),
-                          ),
-                        ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                ),
+                ] else if (currentSong != null)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Nothing else queued up yet.',
+                      style: TextStyle(color: Pallete.subtitleText),
+                    ),
+                  ),
               ],
             ),
           ),

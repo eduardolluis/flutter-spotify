@@ -9,7 +9,6 @@ class GoogleAuthHelper {
     scopes: ['email', 'profile'],
   );
 
-  /// Abre el selector de cuentas de Google y devuelve el idToken, o null si se cancela/falla.
   Future<String?> getIdToken() async {
     try {
       final account = await _googleSignIn.signIn();

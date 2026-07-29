@@ -69,11 +69,6 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     return null;
   }
 
-  /// Plays [song]. Pass the [queue] it belongs to (e.g. the playlist's
-  /// songs, the library list, search results...) so skip next/previous
-  /// know what "next" and "previous" mean in this context. If omitted,
-  /// falls back to whatever queue was already playing, or just [song]
-  /// on its own.
   Future<void> updateSong(SongModel song, {List<SongModel>? queue}) async {
     if (audioPlayer == null) return;
 
@@ -157,6 +152,24 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
   int get currentQueueIndex {
     if (state == null) return -1;
     return _songsQueue.indexWhere((s) => s.id == state!.id);
+  }
+
+  /// Everything queued up to play after the current song, in play order
+  /// (wraps back to the start of the queue).
+  List<SongModel> get upNextSongs {
+    final idx = currentQueueIndex;
+    if (idx == -1 || _songsQueue.length <= 1) return [];
+    return [
+      for (var i = 1; i < _songsQueue.length; i++) _songsQueue[(idx + i) % _songsQueue.length],
+    ];
+  }
+
+  /// Replaces what's queued up next (everything except the currently
+  /// playing song) with [newUpNext] — used when the user reorders or
+  /// removes songs from the queue sheet.
+  void setUpNextSongs(List<SongModel> newUpNext) {
+    final current = state;
+    _songsQueue = [if (current != null) current, ...newUpNext];
   }
 
   void skipNext({bool auto = false}) {

@@ -41,8 +41,6 @@ class _CustomFieldState extends State<CustomField> {
       decoration: InputDecoration(
         hintText: widget.hintText,
         filled: true,
-        // Más contraste que antes (0.35 -> 0.5) para que se distinga
-        // del fondo con imagen detrás, en vez de fundirse con él.
         fillColor: Colors.black.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         isDense: true,
@@ -59,10 +57,6 @@ class _CustomFieldState extends State<CustomField> {
                 ),
               )
             : null,
-        // Ya NO seteamos `border` acá: dejamos que AppTheme.darkThemeMode
-        // controle enabledBorder/focusedBorder (pill + acento azul al
-        // hacer focus). Antes esto se pisaba con BorderSide.none y
-        // radius distinto, por eso el campo se veía plano y sin feedback.
       ),
       validator: (value) {
         if (value!.trim().isEmpty) {
