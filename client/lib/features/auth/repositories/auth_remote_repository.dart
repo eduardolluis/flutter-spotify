@@ -213,4 +213,52 @@ class AuthRemoteRepository {
       return Left(AppFailure(e.toString()));
     }
   }
+
+  Future<Either<AppFailure, String>> sendVerificationCode({required String token}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ServerConstants.serverURL}/auth/send-verification-code'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        try {
+          return Left(AppFailure(resBodyMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
+      }
+      return Right(resBodyMap['message'] as String? ?? 'Verification code sent');
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, UserModel>> verifyEmail({
+    required String token,
+    required String code,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ServerConstants.serverURL}/auth/verify-email'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+        body: jsonEncode({'code': code}),
+      );
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        try {
+          return Left(AppFailure(resBodyMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
+      }
+      return Right(UserModel.fromMap(resBodyMap['user']).copyWith(token: token));
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
 }

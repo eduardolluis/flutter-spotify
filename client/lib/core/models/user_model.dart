@@ -10,6 +10,7 @@ class UserModel {
   final String id;
   final String token;
   final String? avatar_url;
+  final bool is_verified;
   final List<FavSongModel> favorites;
 
   UserModel({
@@ -18,6 +19,7 @@ class UserModel {
     required this.id,
     required this.token,
     this.avatar_url,
+    this.is_verified = false,
     required this.favorites,
   });
 
@@ -27,6 +29,7 @@ class UserModel {
     String? id,
     String? token,
     String? avatar_url,
+    bool? is_verified,
     List<FavSongModel>? favorites,
   }) {
     return UserModel(
@@ -35,6 +38,7 @@ class UserModel {
       id: id ?? this.id,
       token: token ?? this.token,
       avatar_url: avatar_url ?? this.avatar_url,
+      is_verified: is_verified ?? this.is_verified,
       favorites: favorites ?? this.favorites,
     );
   }
@@ -46,6 +50,7 @@ class UserModel {
       'id': id,
       'token': token,
       'avatar_url': avatar_url,
+      'is_verified': is_verified,
       'favorites': favorites.map((x) => x.toMap()).toList(),
     };
   }
@@ -57,6 +62,7 @@ class UserModel {
       id: map['id'] ?? "",
       token: map['token'] ?? "",
       avatar_url: map['avatar_url'],
+      is_verified: map['is_verified'] ?? false,
       favorites: map['favorites'] == null
           ? []
           : List<FavSongModel>.from(
@@ -74,7 +80,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(name: $name, email: $email, id: $id, token: $token, avatar_url: $avatar_url, favorites: $favorites)';
+    return 'UserModel(name: $name, email: $email, id: $id, token: $token, avatar_url: $avatar_url, is_verified: $is_verified, favorites: $favorites)';
   }
 
   @override
@@ -87,6 +93,7 @@ class UserModel {
         other.id == id &&
         other.token == token &&
         other.avatar_url == avatar_url &&
+        other.is_verified == is_verified &&
         listEquals(other.favorites, favorites);
   }
 
@@ -97,6 +104,7 @@ class UserModel {
         id.hashCode ^
         token.hashCode ^
         avatar_url.hashCode ^
+        is_verified.hashCode ^
         favorites.hashCode;
   }
 }

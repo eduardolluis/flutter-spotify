@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:melodix/features/home/view/pages/verify_email_page.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -24,6 +25,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  // Google accounts already have a verified email (Google verified it),
+  // so those should skip our own "verify email" step and go straight in.
+  bool _viaGoogle = false;
 
   @override
   void dispose() {
@@ -40,10 +45,18 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     ref.listen(authViewModelProvider, (_, next) {
       next.when(
         data: (data) {
-          if (data != null) {
+          if (data == null) return;
+  
+          if (_viaGoogle || data.is_verified) {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const HomePage()),
+              (_) => false,
+            );
+          } else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => VerifyEmailPage(email: data.email)),
               (_) => false,
             );
           }
@@ -106,6 +119,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                             label: 'Password',
                             controller: _passwordController,
                             isObscureText: true,
+                            isNewPassword: true,
                           ),
                           const SizedBox(height: 36),
 
@@ -162,6 +176,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                 ),
                               ),
                               onPressed: () {
+                                _viaGoogle = true;
                                 ref.read(authViewModelProvider.notifier).loginWithGoogle();
                               },
                               icon: SvgPicture.asset(

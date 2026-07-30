@@ -7,6 +7,7 @@ class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
   final bool isObscureText;
   final bool isEmail;
+  final bool isNewPassword;
   final TextInputType keyboardType;
 
   const AuthTextField({
@@ -15,6 +16,7 @@ class AuthTextField extends StatefulWidget {
     required this.controller,
     this.isObscureText = false,
     this.isEmail = false,
+    this.isNewPassword = false,
     this.keyboardType = TextInputType.text,
   });
 
@@ -108,9 +110,31 @@ class _AuthTextFieldState extends State<AuthTextField> {
                 return 'Enter a valid email';
               }
             }
+            if (widget.isNewPassword) {
+              final pw = value.trim();
+              if (pw.length < 8) {
+                return 'At least 8 characters';
+              }
+              if (!RegExp(r'[A-Z]').hasMatch(pw)) {
+                return 'Add an uppercase letter';
+              }
+              if (!RegExp(r'[a-z]').hasMatch(pw)) {
+                return 'Add a lowercase letter';
+              }
+              if (!RegExp(r'[0-9]').hasMatch(pw)) {
+                return 'Add a number';
+              }
+            }
             return null;
           },
         ),
+        if (widget.isNewPassword) ...[
+          const SizedBox(height: 6),
+          Text(
+            '8+ characters, with upper & lowercase letters and a number',
+            style: GoogleFonts.inter(fontSize: 11, color: AuthPalette.textFaint),
+          ),
+        ],
       ],
     );
   }

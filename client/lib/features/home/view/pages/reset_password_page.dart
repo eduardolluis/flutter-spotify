@@ -102,6 +102,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                             label: 'New password',
                             controller: _newPasswordController,
                             isObscureText: true,
+                            isNewPassword: true,
                           ),
                           const SizedBox(height: 36),
 
@@ -110,10 +111,6 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                             onTap: () async {
                               if (!_formKey.currentState!.validate()) {
                                 showSnackBar(context, 'Missing fields!');
-                                return;
-                              }
-                              if (_newPasswordController.text.trim().length < 6) {
-                                showSnackBar(context, 'Password must be at least 6 characters');
                                 return;
                               }
                               await ref

@@ -203,4 +203,34 @@ class AuthViewModel extends _$AuthViewModel {
         _loginSuccess(user);
     }
   }
+
+  /// Doesn't touch `state` — the verify-email screen manages its own local
+  /// loading/error UI so a resend doesn't flash the whole screen.
+  Future<Either<AppFailure, String>> sendVerificationCode() async {
+    final currentToken = _authLocalRepository.getToken();
+    if (currentToken == null) {
+      return Left(AppFailure('You are not logged in.'));
+    }
+    return _authRemoteRepository.sendVerificationCode(token: currentToken);
+  }
+
+  Future<Either<AppFailure, UserModel>> verifyEmail({required String code}) async {
+    final currentToken = _authLocalRepository.getToken();
+    if (currentToken == null) {
+      return Left(AppFailure('You are not logged in.'));
+    }
+
+    final res = await _authRemoteRepository.verifyEmail(token: currentToken, code: code);
+
+    if (!ref.mounted) return res;
+
+    switch (res) {
+      case Left(value: final failure):
+        return Left(failure);
+      case Right(value: final user):
+        _currentUserNotifier.addUser(user);
+        state = AsyncValue.data(user);
+        return Right(user);
+    }
+  }
 }
