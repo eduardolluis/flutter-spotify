@@ -1,17 +1,20 @@
 import 'dart:io';
 
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:melodix/core/constants/genres.dart';
+import 'package:melodix/core/providers/current_user_notifier.dart';
 import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/core/widgets/custom_field.dart';
 import 'package:melodix/core/widgets/loader.dart';
 import 'package:melodix/features/home/view/pages/home_page.dart';
+import 'package:melodix/features/home/view/pages/verify_email_page.dart';
 import 'package:melodix/features/home/view/widgets/audio_wave.dart';
 import 'package:melodix/features/home/viewmodel/home_viewmodel.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UploadSongPage extends ConsumerStatefulWidget {
   const UploadSongPage({super.key});
@@ -59,6 +62,43 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
     });
   }
 
+  void _showVerificationRequiredDialog(String email) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Pallete.cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text(
+            "Verification needed",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Pallete.whiteColor),
+          ),
+          content: const Text(
+            "You need to verify your email before uploading songs. Please check your email for the verification link.",
+            style: TextStyle(color: Pallete.subtitleText),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text("Cancel", style: TextStyle(color: Pallete.subtitleText)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Pallete.gradient1),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => VerifyEmailPage(email: email)));
+              },
+              child: const Text("Verify now", style: TextStyle(color: Pallete.whiteColor)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     songNameController.dispose();
@@ -78,7 +118,9 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
     });
 
     final homeState = ref.watch(homeViewModelProvider);
-    final isLoading = homeState.isLoading ?? false;
+    final isLoading = homeState.isLoading;
+
+    final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +138,6 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
           },
           icon: const Icon(Icons.close),
         ),
-
         actions: [
           isLoading
               ? const Padding(
@@ -108,6 +149,11 @@ class _UploadSongPageState extends ConsumerState<UploadSongPage> {
                 )
               : IconButton(
                   onPressed: () async {
+                    if (currentUser != null && !(currentUser.is_verified)) {
+                      _showVerificationRequiredDialog(currentUser.email);
+                      return;
+                    }
+
                     if (formKey.currentState!.validate() &&
                         selectedAudio != null &&
                         selectedImage != null &&

@@ -182,4 +182,3 @@ class _VerifyEmailPageState extends ConsumerState<VerifyEmailPage> {
     );
   }
 }
-
