@@ -21,6 +21,7 @@ void showAddToPlaylistSheet(BuildContext context, WidgetRef ref, SongModel song)
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
+    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
     builder: (sheetContext) => _AddToPlaylistSheet(song: song),
   );
 }
@@ -172,70 +173,92 @@ class _AddToPlaylistSheetState extends ConsumerState<_AddToPlaylistSheet> {
             ),
             const Divider(color: Pallete.borderColor, height: 24),
             Flexible(
-              child: playlistsAsync.when(
-                data: (playlists) {
-                  if (playlists.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        "You don't have any playlists yet — create one above.",
-                        style: TextStyle(color: Pallete.subtitleText),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: playlists.length,
-                    itemBuilder: (context, index) {
-                      final playlist = playlists[index];
-                      final isAdded = _addedIds.contains(playlist.id);
-                      final isAdding = _addingIds.contains(playlist.id);
-
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: Pallete.backgroundColor,
-                          backgroundImage:
-                              (playlist.cover_thumbnail_url != null &&
-                                  playlist.cover_thumbnail_url!.isNotEmpty)
-                              ? NetworkImage(playlist.cover_thumbnail_url!)
-                              : null,
-                          child: (playlist.cover_thumbnail_url == null)
-                              ? const Icon(
-                                  CupertinoIcons.music_note_2,
-                                  color: Pallete.subtitleText,
-                                )
-                              : null,
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                alignment: Alignment.topCenter,
+                child: playlistsAsync.when(
+                  data: (playlists) {
+                    if (playlists.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            "You don't have any playlists yet — create one above.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Pallete.subtitleText),
+                          ),
                         ),
-                        title: Text(playlist.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text(
-                          '${playlist.song_count} song${playlist.song_count == 1 ? '' : 's'}',
-                          style: const TextStyle(fontSize: 12, color: Pallete.subtitleText),
-                        ),
-                        trailing: isAdding
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Icon(
-                                isAdded
-                                    ? CupertinoIcons.checkmark_alt_circle_fill
-                                    : CupertinoIcons.add_circled,
-                                color: isAdded ? Pallete.gradient2 : Pallete.whiteColor,
-                              ),
-                        onTap: isAdded ? null : () => _addToExisting(playlist),
                       );
-                    },
-                  );
-                },
-                error: (error, stackTrace) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(error.toString(), style: const TextStyle(color: Pallete.subtitleText)),
-                ),
-                loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: CircularProgressIndicator()),
+                    }
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: playlists.length,
+                      itemBuilder: (context, index) {
+                        final playlist = playlists[index];
+                        final isAdded = _addedIds.contains(playlist.id);
+                        final isAdding = _addingIds.contains(playlist.id);
+
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: CircleAvatar(
+                            backgroundColor: Pallete.backgroundColor,
+                            backgroundImage:
+                                (playlist.cover_thumbnail_url != null &&
+                                    playlist.cover_thumbnail_url!.isNotEmpty)
+                                ? NetworkImage(playlist.cover_thumbnail_url!)
+                                : null,
+                            child: (playlist.cover_thumbnail_url == null)
+                                ? const Icon(
+                                    CupertinoIcons.music_note_2,
+                                    color: Pallete.subtitleText,
+                                  )
+                                : null,
+                          ),
+                          title: Text(
+                            playlist.name,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            '${playlist.song_count} song${playlist.song_count == 1 ? '' : 's'}',
+                            style: const TextStyle(fontSize: 12, color: Pallete.subtitleText),
+                          ),
+                          trailing: isAdding
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Icon(
+                                  isAdded
+                                      ? CupertinoIcons.checkmark_alt_circle_fill
+                                      : CupertinoIcons.add_circled,
+                                  color: isAdded ? Pallete.gradient2 : Pallete.whiteColor,
+                                ),
+                          onTap: isAdded ? null : () => _addToExisting(playlist),
+                        );
+                      },
+                    );
+                  },
+                  error: (error, stackTrace) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        error.toString(),
+                        style: const TextStyle(color: Pallete.subtitleText),
+                      ),
+                    ),
+                  ),
+                  loading: () => const SizedBox(
+                    height: 140,
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
