@@ -172,4 +172,35 @@ class AuthViewModel extends _$AuthViewModel {
         return Right(user);
     }
   }
+
+  /// Sends a reset code to [email]. Does not touch `state`/loading — this
+  /// runs before the user is authenticated, and the calling page manages
+  /// its own local loading indicator.
+  Future<Either<AppFailure, String>> forgotPassword({required String email}) {
+    return _authRemoteRepository.forgotPassword(email: email);
+  }
+
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final res = await _authRemoteRepository.resetPassword(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+    );
+
+    if (!ref.mounted) return;
+
+    switch (res) {
+      case Left(value: final failure):
+        state = AsyncValue.error(failure.message, StackTrace.current);
+
+      case Right(value: final user):
+        _loginSuccess(user);
+    }
+  }
 }
