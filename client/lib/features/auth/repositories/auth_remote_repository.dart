@@ -162,4 +162,55 @@ class AuthRemoteRepository {
       return Left(AppFailure(e.toString()));
     }
   }
+
+  Future<Either<AppFailure, String>> forgotPassword({required String email}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ServerConstants.serverURL}/auth/forgot-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        try {
+          return Left(AppFailure(resBodyMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
+      }
+      return Right(resBodyMap['message'] as String? ?? 'Reset code sent');
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, UserModel>> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ServerConstants.serverURL}/auth/reset-password'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'code': code, 'new_password': newPassword}),
+      );
+
+      if (response.statusCode != 200) {
+        try {
+          final errorMap = jsonDecode(response.body) as Map<String, dynamic>;
+          return Left(AppFailure(errorMap['detail'].toString()));
+        } catch (_) {
+          return Left(AppFailure('Server Error: ${response.statusCode}'));
+        }
+      }
+
+      final resBodyMap = jsonDecode(response.body) as Map<String, dynamic>;
+      return Right(UserModel.fromMap(resBodyMap['user']).copyWith(token: resBodyMap['token']));
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
 }
