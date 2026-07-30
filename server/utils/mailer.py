@@ -48,7 +48,10 @@ def send_reset_code_email(to_email: str, code: str) -> None:
     message.attach(MIMEText(text_body, "plain"))
     message.attach(MIMEText(html_body, "html"))
 
-    with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT) as server:
+    # timeout=10: sin esto, si Gmail no responde (puerto bloqueado, sin
+    # internet, credenciales inválidas) el request se queda colgado para
+    # siempre en vez de fallar rápido.
+    with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, timeout=10) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.sendmail(GMAIL_ADDRESS, to_email, message.as_string())
 
@@ -88,6 +91,6 @@ def send_verification_code_email(to_email: str, code: str) -> None:
     message.attach(MIMEText(text_body, "plain"))
     message.attach(MIMEText(html_body, "html"))
 
-    with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT) as server:
+    with smtplib.SMTP_SSL(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, timeout=10) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.sendmail(GMAIL_ADDRESS, to_email, message.as_string())

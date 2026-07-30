@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from config import JWT_SECRET, GOOGLE_WEB_CLIENT_ID
 from middleware.auth_middleware import auth_middleware      
-from fastapi import Depends, HTTPException, APIRouter, Header
+from fastapi import Depends, HTTPException, APIRouter, Header, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
 from models.user import User
 from pydantic_schemas.user_create import UserCreate
@@ -54,8 +54,17 @@ def _validate_password_strength(password: str) -> None:
         raise HTTPException(status_code=400, detail='Password must include a number')
 
 
+def _safe_send_verification_code(user_db: User, db: Session) -> None:
+    """Wrapper used from BackgroundTasks: runs after the response is
+    already sent, so it must never raise (nothing left to catch it)."""
+    try:
+        _issue_and_send_verification_code(user_db, db)
+    except Exception as e:
+        print("WARNING: couldn't send verification email on signup:", str(e))
+
+
 @router.post("/signup", status_code=201)
-def signup_user(user: UserCreate, db: Session = Depends(get_db)):
+def signup_user(user: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     # check if the user already exists in the db
     user_db = db.query(User).filter(User.email == user.email).first()
 
@@ -75,13 +84,14 @@ def signup_user(user: UserCreate, db: Session = Depends(get_db)):
 
     token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
 
-    # Best-effort: if the mail server isn't configured yet, don't block
-    # signup over it — the app can still ask the user to resend the code
-    # later from the "verify email" screen.
-    try:
-        _issue_and_send_verification_code(user_db, db)
-    except Exception as e:
-        print("WARNING: couldn't send verification email on signup:", str(e))
+    # Best-effort: send the verification code in the background so the
+    # signup response doesn't wait on the mail server. Previously this was
+    # a synchronous call wrapped in try/except, which "caught" failures but
+    # NOT slowness — a slow/unreachable SMTP connection (e.g. Gmail
+    # unreachable from the host) would still make the whole request hang
+    # until it finally timed out. Running it as a background task means
+    # the client gets its token/user back immediately regardless.
+    background_tasks.add_task(_safe_send_verification_code, user_db, db)
 
     return {'token': token, 'user': _serialize_user(user_db)}
 
