@@ -22,22 +22,39 @@ Melodix represents the complete development of a production-oriented music strea
 </div>
 
 ---
-
 ## Features
 
-- Secure Authentication
-- Music Streaming
-- Queue Management
-- Playlist Creation
-- Liked Songs
-- Artist Profiles
-- Follow System
-- Search & Filters
-- Song Uploads
-- User Profiles
-- Cloud Media Storage
-- Responsive UI
+### Authentication
+- Secure JWT authentication
+- User registration and login
+- Persistent user sessions
 
+### Music
+- Stream songs with background playback
+- Interactive music player
+- Playback queue management
+- Like and save favorite songs
+
+### Library
+- Create and manage custom playlists
+- Personal music library
+- Add songs directly from the player
+
+### Discovery
+- Search songs and artists
+- Filter search results
+- Browse artist profiles
+- Follow your favorite artists
+
+### Profile
+- Customize your profile
+- Edit personal information
+- View followers and following lists
+
+### Uploads
+- Upload new songs
+- Cloud-based media storage
+- Manage uploaded content
 ---
 
 ## Screenshots
