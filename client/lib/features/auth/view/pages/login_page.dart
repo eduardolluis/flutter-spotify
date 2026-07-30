@@ -6,7 +6,6 @@ import 'package:melodix/features/auth/view/widgets/auth_brand_mark.dart';
 import 'package:melodix/features/auth/view/widgets/auth_gradient_button.dart';
 import 'package:melodix/features/auth/view/widgets/auth_text_field.dart';
 import 'package:melodix/features/auth/viewmodel/auth_viewmodel.dart';
-import 'package:melodix/features/home/view/pages/forgot_password_page.dart';
 import 'package:melodix/features/home/view/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,28 +104,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             label: 'Password',
                             controller: _passwordController,
                             isObscureText: true,
-                          ),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ForgotPasswordPage(),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                'Forgot password?',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: AuthPalette.textMuted,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 26),
 

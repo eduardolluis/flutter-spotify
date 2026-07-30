@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:melodix/core/providers/current_user_notifier.dart';
@@ -48,6 +49,7 @@ class LibrarySearchQuery extends _$LibrarySearchQuery {
 class CurrentSongNotifier extends _$CurrentSongNotifier {
   late HomeLocalRepository _homeLocalRepository;
   AudioPlayer? audioPlayer;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
 
   /// The list of songs the currently playing song came from (a playlist,
   /// the library, search results, an artist's songs, etc). skipNext /
@@ -63,6 +65,7 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     audioPlayer = AudioPlayer();
 
     ref.onDispose(() {
+      _playerStateSubscription?.cancel();
       audioPlayer?.dispose();
     });
 
@@ -92,7 +95,12 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
 
     await audioPlayer!.setAudioSource(audioSource);
 
-    audioPlayer!.playerStateStream.listen((playerState) {
+    // Cancel the previous subscription before creating a new one — otherwise
+    // every call to updateSong() stacks another listener on the stream, so
+    // a single "song completed" event ends up firing skipNext() once per
+    // song played so far instead of just once.
+    await _playerStateSubscription?.cancel();
+    _playerStateSubscription = audioPlayer!.playerStateStream.listen((playerState) {
       if (playerState.processingState == ProcessingState.completed) {
         if (ref.read(repeatProvider)) {
           audioPlayer!.seek(Duration.zero);

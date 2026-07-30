@@ -28,23 +28,5 @@ def _run_lightweight_migrations():
             with engine.begin() as connection:
                 connection.execute(text('ALTER TABLE songs ADD COLUMN genre VARCHAR(50)'))
 
-    if 'users' in inspector.get_table_names():
-        existing_user_columns = {col['name'] for col in inspector.get_columns('users')}
-        with engine.begin() as connection:
-            if 'reset_code_hash' not in existing_user_columns:
-                connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_hash TEXT'))
-            if 'reset_code_expires_at' not in existing_user_columns:
-                connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP'))
-            if 'is_verified' not in existing_user_columns:
-                connection.execute(
-                    text('ALTER TABLE users ADD COLUMN is_verified BOOLEAN NOT NULL DEFAULT FALSE')
-                )
-            if 'verification_code_hash' not in existing_user_columns:
-                connection.execute(text('ALTER TABLE users ADD COLUMN verification_code_hash TEXT'))
-            if 'verification_code_expires_at' not in existing_user_columns:
-                connection.execute(
-                    text('ALTER TABLE users ADD COLUMN verification_code_expires_at TIMESTAMP')
-                )
-
 
 _run_lightweight_migrations()
