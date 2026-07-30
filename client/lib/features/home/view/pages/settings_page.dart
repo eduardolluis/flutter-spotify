@@ -6,6 +6,7 @@ import 'package:melodix/core/theme/app_pallete.dart';
 import 'package:melodix/core/utils.dart';
 import 'package:melodix/features/auth/view/pages/signup_page.dart';
 import 'package:melodix/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:melodix/features/home/view/pages/edit_profile_page.dart';
 import 'package:melodix/features/home/view/widgets/profile_action_tile.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -83,7 +84,8 @@ class SettingsPage extends ConsumerWidget {
             iconColor: Pallete.gradient2,
             label: user?.name ?? '',
             subtitle: user?.email ?? '',
-            onTap: () {},
+            onTap: () =>
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage())),
           ),
           const SizedBox(height: 28),
           const Text('Storage', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
