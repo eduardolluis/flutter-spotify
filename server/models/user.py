@@ -1,5 +1,5 @@
 from models.base import Base
-from sqlalchemy import Column, String, Text, LargeBinary, DateTime
+from sqlalchemy import Column, String, Text, LargeBinary, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
 class User(Base):
@@ -12,5 +12,8 @@ class User(Base):
     avatar_url = Column(Text, nullable=True)
     reset_code_hash = Column(Text, nullable=True)
     reset_code_expires_at = Column(DateTime, nullable=True)
+    is_verified = Column(Boolean, nullable=False, default=False)
+    verification_code_hash = Column(Text, nullable=True)
+    verification_code_expires_at = Column(DateTime, nullable=True)
 
     favorites = relationship('Favorite', back_populates='user')

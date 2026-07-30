@@ -35,6 +35,16 @@ def _run_lightweight_migrations():
                 connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_hash TEXT'))
             if 'reset_code_expires_at' not in existing_user_columns:
                 connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP'))
+            if 'is_verified' not in existing_user_columns:
+                connection.execute(
+                    text('ALTER TABLE users ADD COLUMN is_verified BOOLEAN NOT NULL DEFAULT FALSE')
+                )
+            if 'verification_code_hash' not in existing_user_columns:
+                connection.execute(text('ALTER TABLE users ADD COLUMN verification_code_hash TEXT'))
+            if 'verification_code_expires_at' not in existing_user_columns:
+                connection.execute(
+                    text('ALTER TABLE users ADD COLUMN verification_code_expires_at TIMESTAMP')
+                )
 
 
 _run_lightweight_migrations()

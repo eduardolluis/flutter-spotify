@@ -14,8 +14,9 @@ from pydantic_schemas.user_create import UserCreate
 from pydantic_schemas.user_login import UserLogin
 from pydantic_schemas.forgot_password import ForgotPassword
 from pydantic_schemas.reset_password import ResetPassword
+from pydantic_schemas.verify_email import VerifyEmail
 from database import get_db
-from utils.mailer import send_reset_code_email
+from utils.mailer import send_reset_code_email, send_verification_code_email
 
 router = APIRouter()
 
@@ -31,11 +32,26 @@ def _serialize_user(user_db: User) -> dict:
         'name': user_db.name,
         'email': user_db.email,
         'avatar_url': user_db.avatar_url,
+        'is_verified': bool(user_db.is_verified),
         'favorites': [
             {'id': f.id, 'song_id': f.song_id, 'user_id': f.user_id}
             for f in (user_db.favorites or [])
         ],
     }
+
+
+def _validate_password_strength(password: str) -> None:
+    """Mirrors the client-side rule in AuthTextField(isNewPassword: true).
+    The client check is just UX — this is the real gate, since a request
+    can always skip the app and hit the API directly."""
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail='Password must be at least 8 characters')
+    if not any(c.isupper() for c in password):
+        raise HTTPException(status_code=400, detail='Password must include an uppercase letter')
+    if not any(c.islower() for c in password):
+        raise HTTPException(status_code=400, detail='Password must include a lowercase letter')
+    if not any(c.isdigit() for c in password):
+        raise HTTPException(status_code=400, detail='Password must include a number')
 
 
 @router.post("/signup", status_code=201)
@@ -45,6 +61,8 @@ def signup_user(user: UserCreate, db: Session = Depends(get_db)):
 
     if user_db:
         raise HTTPException(status_code=400, detail="User with the same email already exists!")
+
+    _validate_password_strength(user.password)
 
     hashpw = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt())
 
@@ -56,6 +74,14 @@ def signup_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(user_db)
 
     token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
+
+    # Best-effort: if the mail server isn't configured yet, don't block
+    # signup over it — the app can still ask the user to resend the code
+    # later from the "verify email" screen.
+    try:
+        _issue_and_send_verification_code(user_db, db)
+    except Exception as e:
+        print("WARNING: couldn't send verification email on signup:", str(e))
 
     return {'token': token, 'user': _serialize_user(user_db)}
 
@@ -111,7 +137,8 @@ def google_auth_mobile(data: GoogleAuthSchema, db: Session = Depends(get_db)):
                 id=str(uuid.uuid4()),
                 email=email,
                 name=name,
-                password=random_pw
+                password=random_pw,
+                is_verified=True,  # Google already verified this email for us
             )
             db.add(user_db)
             db.commit()
@@ -192,8 +219,7 @@ def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
     if not bcrypt.checkpw(data.code.encode('utf-8'), user_db.reset_code_hash.encode('utf-8')):
         raise invalid_error
 
-    if len(data.new_password) < 6:
-        raise HTTPException(status_code=400, detail='Password must be at least 6 characters')
+    _validate_password_strength(data.new_password)
 
     user_db.password = bcrypt.hashpw(data.new_password.encode('utf-8'), bcrypt.gensalt())
     user_db.reset_code_hash = None
@@ -202,3 +228,73 @@ def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
 
     token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
     return {'token': token, 'user': _serialize_user(user_db)}
+
+
+VERIFICATION_CODE_TTL_MINUTES = 15
+
+
+def _issue_and_send_verification_code(user_db: User, db: Session) -> None:
+    """Generates a fresh 6-digit code, stores its hash on the user, and
+    emails it. Raises if sending fails; caller decides how to handle that."""
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    code_hash = bcrypt.hashpw(code.encode('utf-8'), bcrypt.gensalt())
+
+    user_db.verification_code_hash = code_hash.decode('utf-8')
+    user_db.verification_code_expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=VERIFICATION_CODE_TTL_MINUTES
+    )
+    db.commit()
+
+    send_verification_code_email(user_db.email, code)
+
+
+@router.post('/send-verification-code')
+def send_verification_code(db: Session = Depends(get_db),
+                            user_dict=Depends(auth_middleware)):
+    user_db = db.query(User).filter(User.id == user_dict['uid']).first()
+    if not user_db:
+        raise HTTPException(404, 'User not found!')
+
+    if user_db.is_verified:
+        return {'message': 'Email is already verified'}
+
+    try:
+        _issue_and_send_verification_code(user_db, db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Couldn't send verification email: {e}")
+
+    return {'message': 'Verification code sent'}
+
+
+@router.post('/verify-email')
+def verify_email(data: VerifyEmail, db: Session = Depends(get_db),
+                  user_dict=Depends(auth_middleware)):
+    invalid_error = HTTPException(status_code=400, detail='Invalid or expired code')
+
+    user_db = db.query(User).filter(User.id == user_dict['uid']).first()
+    if not user_db:
+        raise HTTPException(404, 'User not found!')
+
+    if user_db.is_verified:
+        return {'user': _serialize_user(user_db)}
+
+    if not user_db.verification_code_hash or not user_db.verification_code_expires_at:
+        raise invalid_error
+
+    expires_at = user_db.verification_code_expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) > expires_at:
+        raise invalid_error
+
+    if not bcrypt.checkpw(
+        data.code.encode('utf-8'), user_db.verification_code_hash.encode('utf-8')
+    ):
+        raise invalid_error
+
+    user_db.is_verified = True
+    user_db.verification_code_hash = None
+    user_db.verification_code_expires_at = None
+    db.commit()
+
+    return {'user': _serialize_user(user_db)}
