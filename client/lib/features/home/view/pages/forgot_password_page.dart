@@ -92,6 +92,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                     AuthTextField(
                       label: 'Email',
                       controller: _emailController,
+                      isEmail: true,
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 36),

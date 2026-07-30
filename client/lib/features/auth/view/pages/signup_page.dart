@@ -98,6 +98,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           AuthTextField(
                             label: 'Email',
                             controller: _emailController,
+                            isEmail: true,
                             keyboardType: TextInputType.emailAddress,
                           ),
                           const SizedBox(height: 28),
@@ -128,7 +129,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
 
                           Row(
                             children: [
-                              const Expanded(child: Divider(color: AuthPalette.hairline, height: 1)),
+                              const Expanded(
+                                child: Divider(color: AuthPalette.hairline, height: 1),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 14),
                                 child: Text(
@@ -140,7 +143,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                   ),
                                 ),
                               ),
-                              const Expanded(child: Divider(color: AuthPalette.hairline, height: 1)),
+                              const Expanded(
+                                child: Divider(color: AuthPalette.hairline, height: 1),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 28),
@@ -183,7 +188,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                               child: RichText(
                                 text: TextSpan(
                                   text: "Already have an account? ",
-                                  style: GoogleFonts.inter(fontSize: 14, color: AuthPalette.textMuted),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: AuthPalette.textMuted,
+                                  ),
                                   children: [
                                     TextSpan(
                                       text: "Log in",

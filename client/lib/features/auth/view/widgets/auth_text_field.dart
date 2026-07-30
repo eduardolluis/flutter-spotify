@@ -6,6 +6,7 @@ class AuthTextField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final bool isObscureText;
+  final bool isEmail;
   final TextInputType keyboardType;
 
   const AuthTextField({
@@ -13,6 +14,7 @@ class AuthTextField extends StatefulWidget {
     required this.label,
     required this.controller,
     this.isObscureText = false,
+    this.isEmail = false,
     this.keyboardType = TextInputType.text,
   });
 
@@ -99,6 +101,12 @@ class _AuthTextFieldState extends State<AuthTextField> {
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return '${widget.label} is required';
+            }
+            if (widget.isEmail) {
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+              if (!emailRegex.hasMatch(value.trim())) {
+                return 'Enter a valid email';
+              }
             }
             return null;
           },
