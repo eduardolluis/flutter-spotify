@@ -22,15 +22,19 @@ def _run_lightweight_migrations():
     ones. The `genre` column was added to an already-deployed `songs`
     table, so add it here if it isn't there yet (safe/idempotent)."""
     inspector = inspect(engine)
-    if 'songs' not in inspector.get_table_names():
-        return
+    if 'songs' in inspector.get_table_names():
+        existing_song_columns = {col['name'] for col in inspector.get_columns('songs')}
+        if 'genre' not in existing_song_columns:
+            with engine.begin() as connection:
+                connection.execute(text('ALTER TABLE songs ADD COLUMN genre VARCHAR(50)'))
 
-    existing_columns = {col['name'] for col in inspector.get_columns('songs')}
-    if 'genre' in existing_columns:
-        return
-
-    with engine.begin() as connection:
-        connection.execute(text('ALTER TABLE songs ADD COLUMN genre VARCHAR(50)'))
+    if 'users' in inspector.get_table_names():
+        existing_user_columns = {col['name'] for col in inspector.get_columns('users')}
+        with engine.begin() as connection:
+            if 'reset_code_hash' not in existing_user_columns:
+                connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_hash TEXT'))
+            if 'reset_code_expires_at' not in existing_user_columns:
+                connection.execute(text('ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP'))
 
 
 _run_lightweight_migrations()

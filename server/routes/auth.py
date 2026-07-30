@@ -1,7 +1,9 @@
 import uuid
 import jwt
 import bcrypt
-import requests  
+import requests
+import secrets
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from config import JWT_SECRET, GOOGLE_WEB_CLIENT_ID
 from middleware.auth_middleware import auth_middleware      
@@ -10,7 +12,10 @@ from sqlalchemy.orm import Session, joinedload
 from models.user import User
 from pydantic_schemas.user_create import UserCreate
 from pydantic_schemas.user_login import UserLogin
+from pydantic_schemas.forgot_password import ForgotPassword
+from pydantic_schemas.reset_password import ResetPassword
 from database import get_db
+from utils.mailer import send_reset_code_email
 
 router = APIRouter()
 
@@ -132,3 +137,68 @@ def current_user_data(db: Session = Depends(get_db),
        raise HTTPException(404, 'User not found!')
 
    return _serialize_user(user)
+
+
+RESET_CODE_TTL_MINUTES = 15
+
+
+@router.post('/forgot-password')
+def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+    generic_response = {
+        'message': "If an account exists for that email, we've sent a reset code."
+    }
+
+    user_db = db.query(User).filter(User.email == data.email).first()
+    if not user_db:
+        # Don't reveal whether the email exists.
+        return generic_response
+
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    code_hash = bcrypt.hashpw(code.encode('utf-8'), bcrypt.gensalt())
+
+    user_db.reset_code_hash = code_hash.decode('utf-8')
+    user_db.reset_code_expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=RESET_CODE_TTL_MINUTES
+    )
+    db.commit()
+
+    try:
+        send_reset_code_email(user_db.email, code)
+    except Exception as e:
+        # Roll back the issued code if we couldn't actually send it, so a
+        # broken mail config doesn't leave a dangling valid code.
+        user_db.reset_code_hash = None
+        user_db.reset_code_expires_at = None
+        db.commit()
+        raise HTTPException(status_code=500, detail=f"Couldn't send reset email: {e}")
+
+    return generic_response
+
+
+@router.post('/reset-password')
+def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    invalid_error = HTTPException(status_code=400, detail='Invalid or expired code')
+
+    user_db = db.query(User).filter(User.email == data.email).first()
+    if not user_db or not user_db.reset_code_hash or not user_db.reset_code_expires_at:
+        raise invalid_error
+
+    expires_at = user_db.reset_code_expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) > expires_at:
+        raise invalid_error
+
+    if not bcrypt.checkpw(data.code.encode('utf-8'), user_db.reset_code_hash.encode('utf-8')):
+        raise invalid_error
+
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail='Password must be at least 6 characters')
+
+    user_db.password = bcrypt.hashpw(data.new_password.encode('utf-8'), bcrypt.gensalt())
+    user_db.reset_code_hash = None
+    user_db.reset_code_expires_at = None
+    db.commit()
+
+    token = jwt.encode({'id': user_db.id}, JWT_SECRET, algorithm='HS256')
+    return {'token': token, 'user': _serialize_user(user_db)}

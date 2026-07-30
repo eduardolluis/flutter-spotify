@@ -1,5 +1,5 @@
 from models.base import Base
-from sqlalchemy import Column, String, Text, LargeBinary
+from sqlalchemy import Column, String, Text, LargeBinary, DateTime
 from sqlalchemy.orm import relationship
 
 class User(Base):
@@ -9,6 +9,8 @@ class User(Base):
     name = Column(String(100))
     email = Column(String(100), unique=True, index=True)
     password = Column(LargeBinary)
-    avatar_url = Column(Text, nullable=True)  
+    avatar_url = Column(Text, nullable=True)
+    reset_code_hash = Column(Text, nullable=True)
+    reset_code_expires_at = Column(DateTime, nullable=True)
 
     favorites = relationship('Favorite', back_populates='user')
